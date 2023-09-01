@@ -11,8 +11,8 @@ pub struct Complex<T: Copy>{
     pub i: T
 }
 
-type Complex32 = Complex<f32>;
-type Complex64 = Complex<f64>;
+pub type Complex32 = Complex<f32>;
+pub type Complex64 = Complex<f64>;
 
 impl<T: Copy> From<(T, T)> for Complex<T>{
     fn from(value: (T, T)) -> Complex<T>{
@@ -104,13 +104,14 @@ where T: Add<Output=T> + Sub<Output=T> +
 
 #[cfg(test)]
 mod tests {
-    extern crate std;
-    use std::*;
+ //   extern crate std;
+ //   use std::*;
     use super::*;
 
     #[test]
     fn check_const_path(){
         assert_eq!(crate::f32::I, Complex{r: 0.0_f32, i: 1.0_f32});
+        assert_eq!(crate::f64::I, Complex{r: 0.0_f64, i: 1.0_f64});
     }
 
     // Tests -a a+b a-b a*b a/b
