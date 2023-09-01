@@ -65,13 +65,35 @@ where T: Add<Output=T> + Sub<Output=T> +
 // Assign operators (+=, -=, *=, /=)
 
 impl<T> AddAssign for Complex<T>
-where T: AddAssign + Copy{
+where T: AddAssign + Copy {
     fn add_assign(&mut self, rhs: Self) {
         self.r += rhs.r;
         self.i += rhs.i;
     }
 }
 
+impl<T> SubAssign for Complex<T>
+where T: SubAssign + Copy {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.r -= rhs.r;
+        self.i -= rhs.i;
+    }
+}
+
+impl<T> MulAssign for Complex<T>
+where T: Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Copy {
+    fn mul_assign(&mut self, rhs: Self) {
+        *self = *self * rhs;
+    }
+}
+
+impl<T> DivAssign for Complex<T>
+where T: Add<Output=T> + Sub<Output=T> + 
+         Mul<Output=T> + Div<Output=T> + Copy {
+    fn div_assign(&mut self, rhs: Self) {
+        *self = *self / rhs;
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -89,5 +111,19 @@ mod tests {
         assert_eq!(a-a, Complex{r: 0.0, i: 0.0});
         assert_eq!(a*a, Complex{r: -3.0, i: 4.0});
         assert_eq!(a/a, Complex{r: 1.0, i: 0.0});
+    }
+
+    #[test]
+    fn assign_ops() {
+        let a_0 = Complex::from((1.0, 2.0));
+        let mut a = a_0;
+        a += a_0;
+        assert_eq!(a, Complex{r: 2.0, i: 4.0});
+        a -= a_0;
+        assert_eq!(a, Complex{r: 1.0, i: 2.0});
+        a *= a_0;
+        assert_eq!(a, Complex{r: -3.0, i: 4.0});
+        a /= a_0;
+        assert_eq!(a, Complex{r: 1.0, i: 2.0});
     }
 }
