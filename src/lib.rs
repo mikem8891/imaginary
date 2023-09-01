@@ -1,11 +1,18 @@
 #![no_std]
 use core::ops::*;
 
+pub mod float;
+pub mod f32;
+pub mod f64;
+
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
 pub struct Complex<T: Copy>{
     pub r: T,
     pub i: T
 }
+
+type Complex32 = Complex<f32>;
+type Complex64 = Complex<f64>;
 
 impl<T: Copy> From<(T, T)> for Complex<T>{
     fn from(value: (T, T)) -> Complex<T>{
@@ -100,6 +107,11 @@ mod tests {
     extern crate std;
     use std::*;
     use super::*;
+
+    #[test]
+    fn check_const_path(){
+        assert_eq!(crate::f32::I, Complex{r: 0.0_f32, i: 1.0_f32});
+    }
 
     // Tests -a a+b a-b a*b a/b
     #[test]
