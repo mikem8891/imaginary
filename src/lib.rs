@@ -1,10 +1,10 @@
 #![no_std]
-use core::ops::{Neg, Add, Sub, Mul, Div};
+use core::ops::*;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
-struct Complex<T: Copy>{
-    r: T,
-    i: T
+pub struct Complex<T: Copy>{
+    pub r: T,
+    pub i: T
 }
 
 impl<T: Copy> From<(T, T)> for Complex<T>{
@@ -50,7 +50,8 @@ where T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Copy {
 }
 
 impl<T> Div for Complex<T>
-where T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Copy {
+where T: Add<Output=T> + Sub<Output=T> + 
+         Mul<Output=T> + Div<Output=T> + Copy {
     type Output = Complex<T>;
     fn div(self, rhs: Complex<T>) -> Complex<T> {
         let denom = rhs.r * rhs.r + rhs.i * rhs.i;
@@ -61,10 +62,16 @@ where T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Copy {
     }
 }
 
+// Assign operators (+=, -=, *=, /=)
 
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+impl<T> AddAssign for Complex<T>
+where T: AddAssign + Copy{
+    fn add_assign(&mut self, rhs: Self) {
+        self.r += rhs.r;
+        self.i += rhs.i;
+    }
 }
+
 
 #[cfg(test)]
 mod tests {
