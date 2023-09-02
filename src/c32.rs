@@ -8,6 +8,6 @@ mod tests {
 
     #[test]
     fn check_const_path(){
-        assert_eq!(crate::f32::I, Complex{r: 0.0_f32, i: 1.0_f32});
+        assert_eq!(crate::c32::I, Complex{r: 0.0_f32, i: 1.0_f32});
     }
 }

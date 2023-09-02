@@ -8,6 +8,6 @@ mod tests {
 
     #[test]
     fn check_const_path(){
-        assert_eq!(crate::f64::I, Complex{r: 0.0_f64, i: 1.0_f64});
+        assert_eq!(crate::c64::I, Complex{r: 0.0_f64, i: 1.0_f64});
     }
 }
