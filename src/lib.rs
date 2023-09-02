@@ -2,7 +2,7 @@
 use core::ops::*;
 
 pub mod float;
-pub mod f32;
+pub mod c32;
 pub mod f64;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
