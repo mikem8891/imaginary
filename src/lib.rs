@@ -133,6 +133,7 @@ mod tests {
     fn basic_ops() {
         let a = Complex::from((1.0, 2.0));
         assert_eq!(a, Complex{r: 1.0, i: 2.0});
+        assert_eq!(a.into(), (1.0, 2.0));
         assert_eq!(-a, Complex{r: -1.0, i: -2.0});
         assert_eq!(a+a, Complex{r: 2.0, i: 4.0});
         assert_eq!(a-a, Complex{r: 0.0, i: 0.0});
