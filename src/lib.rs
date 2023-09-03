@@ -1,6 +1,7 @@
 #![no_std]
 use core::ops::*;
 
+#[macro_use]
 mod float;
 pub mod c32;
 pub mod c64;
@@ -18,6 +19,13 @@ impl<T: Copy> From<(T, T)> for Complex<T>{
     fn from(value: (T, T)) -> Complex<T>{
         let (real, imag) = value;
         Complex { r: (real), i: (imag) }
+    }
+}
+
+impl<T> Complex<T>
+where T: Neg<Output=T> + Copy {
+    pub fn conj(self) -> Complex<T> {
+        Complex { r: (self.r), i: (-self.i) }
     }
 }
 
@@ -124,6 +132,8 @@ mod tests {
         assert_eq!(a-a, Complex{r: 0.0, i: 0.0});
         assert_eq!(a*a, Complex{r: -3.0, i: 4.0});
         assert_eq!(a/a, Complex{r: 1.0, i: 0.0});
+
+        assert_eq!(a.conj(), Complex{r: 1.0, i: -2.0});
     }
 
     #[test]

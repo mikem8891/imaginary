@@ -15,8 +15,15 @@ mod tests {
     
     #[test]
     fn check_complex_float_ops(){
-        let a = 1.0_f32;
-        let b = Complex::from((2.0_f32, 3.0_f32));
-        assert_eq!(a + b, Complex{r: 3.0_f32, i: 3.0_f32});
+        let a: f32 = 2.0;
+        let b: Complex<f32> = Complex::from((1.0, 3.0));
+        assert_eq!(a + b, Complex{r: 3.0, i: 3.0});
+        assert_eq!(b + a, Complex{r: 3.0, i: 3.0});
+        assert_eq!(a - b, Complex{r: 1.0, i: -3.0});
+        assert_eq!(b - a, Complex{r: -1.0, i: 3.0});
+        assert_eq!(a * b, Complex{r: 2.0, i: 6.0});
+        assert_eq!(b * a, Complex{r: 2.0, i: 6.0});
+        assert_eq!(a / b, Complex{r: 0.2, i: -0.6});
+        assert_eq!(b / a, Complex{r: 0.5, i: 1.5});
     }
 }
