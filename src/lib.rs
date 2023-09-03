@@ -22,6 +22,12 @@ impl<T: Copy> From<(T, T)> for Complex<T>{
     }
 }
 
+impl<T: Copy> Into<(T, T)> for Complex<T> {
+    fn into(self) -> (T, T) {
+        (self.r, self.i)
+    }
+}
+
 impl<T> Complex<T>
 where T: Neg<Output=T> + Copy {
     pub fn conj(self) -> Complex<T> {
