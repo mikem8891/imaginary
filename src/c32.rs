@@ -6,7 +6,8 @@ impl_complex_float_ops!(f32);
 
 impl Complex<f32> {
     impl_abs!(f32);
-    impl_angle(f32);
+    impl_angle!(f32);
+    impl_cis!(f32);
     impl_exp!(f32);
     impl_sqrt!(f32);
 }
