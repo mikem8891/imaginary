@@ -1,4 +1,3 @@
-#![no_std]
 use core::ops::*;
 
 #[macro_use]
@@ -14,6 +13,12 @@ pub struct Complex<T: Copy>{
 
 pub type Complex32 = Complex<f32>;
 pub type Complex64 = Complex<f64>;
+
+impl<T: Copy> Complex<T>{
+    pub fn new(real: T, imag:  T) -> Complex<T> {
+        Complex { r: real, i: imag }
+    }
+}
 
 impl<T: Copy> From<(T, T)> for Complex<T>{
     fn from(value: (T, T)) -> Complex<T>{
@@ -118,8 +123,6 @@ where T: Add<Output=T> + Sub<Output=T> +
 
 #[cfg(test)]
 mod tests {
- //   extern crate std;
- //   use std::*;
     use super::*;
 
     #[test]

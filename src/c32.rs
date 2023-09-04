@@ -7,6 +7,7 @@ impl_complex_float_ops!(f32);
 impl Complex<f32> {
     impl_abs!(f32);
     impl_exp!(f32);
+    impl_sqrt!(f32);
 }
 
 #[cfg(test)]
@@ -34,7 +35,13 @@ mod tests {
     
     #[test]
     fn float_fn() {
-        let a = Complex::from((3.0_f32, 4.0_f32));
-        assert_eq!(a.abs(), 5.0)
+        let a = Complex::new(3.0_f32, -4.0_f32);
+        assert_eq!(a.abs(), 5.0);
+        let e_pi_i = Complex::new(0.0_f32, std::f32::consts::PI).exp();
+        assert!((e_pi_i + Complex::new(1.0_f32, 0.0_f32)).abs() <= f32::EPSILON);
+        let a_sqrt = a.sqrt();
+        assert_eq!(a_sqrt * a_sqrt, a);
+        assert_eq!(Complex::new( 4.0_f32, 0.0_f32).sqrt(), Complex::new(2.0_f32, 0.0_f32));
+        assert_eq!(Complex::new(-4.0_f32, 0.0_f32).sqrt(), Complex::new(0.0_f32, 2.0_f32));
     }
 }

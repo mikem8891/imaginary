@@ -77,28 +77,38 @@ macro_rules! impl_complex_float_ops {
 }
 
 macro_rules! impl_abs {
-  ($t: ty) => {
-    fn abs(self) -> $t {
-      self.r.hypot(self.i)
+    ($t: ty) => {
+        pub fn abs(self) -> $t {
+            self.r.hypot(self.i)
+        }
     }
 }
 
 macro_rules! impl_exp {
-  ($t: ty) => {
-    fn exp(self) -> Complex<$t> {
-      let r = self.r.exp();
-      Complex{
-          r: r * self.i.cos(),
-          i: r * self.i.sin()
-      }
+    ($t: ty) => {
+        pub fn exp(self) -> Complex<$t> {
+            let r = self.r.exp();
+            Complex::new(r * self.i.cos(), r * self.i.sin())
+        }
     }
 }
 
-#[allow(unused_macros)]
 macro_rules! impl_sqrt {
-  ($t: ty) => {
-    fn sqrt(self) -> Complex<$t> {
-      todo!();
+    ($t: ty) => {
+        pub fn sqrt(self) -> Complex<$t> {
+            let (x, y) = self.into();
+            if y == 0.0 {
+                if x >= 0.0 {
+                    Complex::new(x.sqrt(), 0.0)
+                } else {
+                    Complex::new(0.0, (-x).sqrt())
+                }
+            } else {
+                let r = self.abs();
+                let x_num = x + r;
+                let dom = 1.0 / (2.0 * x_num).sqrt();
+                Complex::new(x_num * dom, y * dom)
+            }
+        }
     }
-  }
 }
