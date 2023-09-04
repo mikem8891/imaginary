@@ -104,7 +104,7 @@ macro_rules! impl_exp {
     ($t: ty) => {
         pub fn exp(self) -> Complex<$t> {
             let r = self.r.exp();
-            r * Complex<$t>::cis(self.i)
+            r * Complex::cis(self.i)
         }
     }
 }
@@ -122,7 +122,7 @@ macro_rules! impl_pow {
         pub fn powf(self, n: $t) -> Complex<$t> {
             let r = self.abs().powf(n);
             let theta = n * self.angle();
-            r * Complex<$t>::cis(theta)
+            r * Complex::cis(theta)
         }
         pub fn powc(self, n: Complex<$t>) -> Complex<$t> {
             (n * self.ln()).exp()
