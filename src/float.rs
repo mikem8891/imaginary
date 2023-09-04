@@ -109,6 +109,14 @@ macro_rules! impl_exp {
     }
 }
 
+macro_rules! impl_ln {
+    ($t: ty) => {
+        pub fn ln(self) -> Complex<$t> {
+            Complex::new(self.abs().ln(), self.angle())
+        }
+    }
+}
+
 macro_rules! impl_sqrt {
     ($t: ty) => {
         pub fn sqrt(self) -> Complex<$t> {
