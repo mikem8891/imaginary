@@ -26,4 +26,10 @@ mod tests {
         assert_eq!(a / b, Complex{r: 0.2, i: -0.6});
         assert_eq!(b / a, Complex{r: 0.5, i: 1.5});
     }
+    
+    #[test]
+    fn float_fn() {
+        let a = Complex::from((3.0_f32,4.0_f32));
+        assert_eq!(a.abs(), 5.0)
+    }
 }
