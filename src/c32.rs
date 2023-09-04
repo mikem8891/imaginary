@@ -30,7 +30,7 @@ mod tests {
     
     #[test]
     fn float_fn() {
-        let a = Complex::from((3.0_f32,4.0_f32));
+        let a = Complex::from((3.0_f32, 4.0_f32));
         assert_eq!(a.abs(), 5.0)
     }
 }
