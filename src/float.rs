@@ -76,6 +76,13 @@ macro_rules! impl_complex_float_ops {
     }
 }
 
+macro_rules! impl_abs {
+  ($t: ty) => {
+    fn abs(self) -> $t {
+      self.r.hypot(self.i)
+    }
+}
+
 #[allow(unused_macros)]
 macro_rules! impl_sqrt {
   ($t: ty) => {
