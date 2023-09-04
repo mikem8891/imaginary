@@ -117,6 +117,19 @@ macro_rules! impl_ln {
     }
 }
 
+macro_rules! impl_pow {
+    ($t: ty) => {
+        pub fn powf(self, n: $t) -> Complex<$t> {
+            let r = self.abs().powf(n);
+            let theta = n * self.angle();
+            r * Complex<$t>::cis(theta)
+        }
+        pub fn powc(self, n: Complex<$t>) -> Complex<$t> {
+            (n * self.ln()).exp()
+        }
+    }
+}
+
 macro_rules! impl_sqrt {
     ($t: ty) => {
         pub fn sqrt(self) -> Complex<$t> {
