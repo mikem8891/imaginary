@@ -92,6 +92,14 @@ macro_rules! impl_angle {
     }
 }
 
+macro_rules! impl_cis {
+    ($t: ty) => {
+        pub fn cis(theta: $t) -> Complex<$t> {
+            Complex::new(theta.cos(), theta.sin())
+        }
+    }
+}
+
 macro_rules! impl_exp {
     ($t: ty) => {
         pub fn exp(self) -> Complex<$t> {
