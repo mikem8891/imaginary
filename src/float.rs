@@ -104,7 +104,7 @@ macro_rules! impl_exp {
     ($t: ty) => {
         pub fn exp(self) -> Complex<$t> {
             let r = self.r.exp();
-            Complex::new(r * self.i.cos(), r * self.i.sin())
+            r * Complex<$t>::cis(self.i)
         }
     }
 }
