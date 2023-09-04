@@ -84,6 +84,14 @@ macro_rules! impl_abs {
     }
 }
 
+macro_rules! impl_angle {
+    ($t: ty) => {
+        pub fn angle(self) -> $t {
+            self.i.atan2(self.r)
+        }
+    }
+}
+
 macro_rules! impl_exp {
     ($t: ty) => {
         pub fn exp(self) -> Complex<$t> {
