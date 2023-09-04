@@ -9,6 +9,7 @@ impl Complex<f32> {
     impl_angle!(f32);
     impl_cis!(f32);
     impl_exp!(f32);
+    impl_ln!(f32);
     impl_sqrt!(f32);
 }
 
