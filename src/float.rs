@@ -83,6 +83,17 @@ macro_rules! impl_abs {
     }
 }
 
+macro_rules! impl_exp {
+  ($t: ty) => {
+    fn exp(self) -> Complex<$t> {
+      let r = self.r.exp();
+      Complex{
+          r: r * self.i.cos(),
+          i: r * self.i.sin()
+      }
+    }
+}
+
 #[allow(unused_macros)]
 macro_rules! impl_sqrt {
   ($t: ty) => {
