@@ -3,7 +3,7 @@ use super::*;
 pub const I: Complex<f32> = Complex{r: 0.0_f32, i: 1.0_f32};
 
 impl_complex_float_ops!(f32);
-impl_float_fn(f32);
+impl_abs(f32);
 
 #[cfg(test)]
 mod tests {
