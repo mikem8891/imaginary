@@ -80,11 +80,28 @@ macro_rules! impl_complex_fn {
     ($t: ty) => {
         impl Complex<$t>{
             /// The absolute value or magnitude
+            /// 
+            /// # Examples
+            /// 
+            /// ```
+            /// use imaginary::Complex;
+            /// let z = Complex::<f64>{r: -3.0, i: 4.0};
+            /// assert_eq!(z.abs(), 5.0);
+            /// ```
             pub fn abs(self) -> $t {
                 self.r.hypot(self.i)
             }
 
             /// Phase angle
+            /// 
+            /// # Examples
+            /// 
+            /// ```
+            /// use imaginary::Complex;
+            /// let z = Complex::<f64>{r: -5.0, i: 5.0};
+            /// let theta = 3.0 * std::f64::consts::FRAC_PI_4;
+            /// assert_eq!(z.angle(), theta);
+            /// ```
             pub fn angle(self) -> $t {
                 self.i.atan2(self.r)
             }

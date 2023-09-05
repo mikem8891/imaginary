@@ -8,7 +8,7 @@ use core::ops::*;
 
 #[macro_use]
 mod float;
-pub mod c32;
+mod c32;
 pub mod c64;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
@@ -136,7 +136,7 @@ mod tests {
     #[test]
     fn check_const_path(){
         assert_eq!(Complex::<f32>::I, Complex{r: 0.0_f32, i: 1.0_f32});
-        assert_eq!(crate::c64::I, Complex{r: 0.0_f64, i: 1.0_f64});
+        assert_eq!(Complex::<f64>::I, Complex{r: 0.0_f64, i: 1.0_f64});
     }
 
     // Tests -a a+b a-b a*b a/b

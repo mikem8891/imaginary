@@ -1,10 +1,12 @@
 use super::*;
 
-pub const I: Complex<f64> = Complex{r: 0.0_f64, i: 1.0_f64};
-
 impl_complex_float_ops!(f64);
 
 impl_complex_fn!(f64);
+
+impl Complex<f64> {
+    pub const I: Complex<f64> = Complex::<f64>{r: 0.0, i: 1.0};
+}
 
 #[cfg(test)]
 mod tests {
@@ -12,7 +14,7 @@ mod tests {
 
     #[test]
     fn check_const_path(){
-        assert_eq!(crate::c64::I, Complex{r: 0.0_f64, i: 1.0_f64});
+        assert_eq!(Complex::<f64>::I, Complex{r: 0.0_f64, i: 1.0_f64});
     }
 
     #[test]
