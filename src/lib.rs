@@ -1,3 +1,9 @@
+//! # Complex Number Library
+//!
+//! This complex number library provides a simple genaric implementation of
+//! complex numbers and a more comprehensive implementation of 
+//! complex numbers for f32 and f64 types.
+
 use core::ops::*;
 
 #[macro_use]
