@@ -76,75 +76,61 @@ macro_rules! impl_complex_float_ops {
     }
 }
 
-macro_rules! impl_abs {
+macro_rules! impl_complex_fn {
     ($t: ty) => {
-        pub fn abs(self) -> $t {
-            self.r.hypot(self.i)
-        }
-    }
-}
+        impl Complex<$t>{
+            /// The absolute value or magnitude
+            pub fn abs(self) -> $t {
+                self.r.hypot(self.i)
+            }
 
-macro_rules! impl_angle {
-    ($t: ty) => {
-        pub fn angle(self) -> $t {
-            self.i.atan2(self.r)
-        }
-    }
-}
+            /// Phase angle
+            pub fn angle(self) -> $t {
+                self.i.atan2(self.r)
+            }
 
-macro_rules! impl_cis {
-    ($t: ty) => {
-        pub fn cis(theta: $t) -> Complex<$t> {
-            Complex::new(theta.cos(), theta.sin())
-        }
-    }
-}
+            /// Returns cos Θ + i sin Θ. Equivalent to e^(Θ i)
+            pub fn cis(theta: $t) -> Complex<$t> {
+                Complex::new(theta.cos(), theta.sin())
+            }
 
-macro_rules! impl_exp {
-    ($t: ty) => {
-        pub fn exp(self) -> Complex<$t> {
-            let r = self.r.exp();
-            r * Complex::cis(self.i)
-        }
-    }
-}
+            /// The exponential function, e^z
+            pub fn exp(self) -> Complex<$t> {
+                let r = self.r.exp();
+                r * Complex::cis(self.i)
+            }
 
-macro_rules! impl_ln {
-    ($t: ty) => {
-        pub fn ln(self) -> Complex<$t> {
-            Complex::new(self.abs().ln(), self.angle())
-        }
-    }
-}
+            /// The natural logarithm
+            pub fn ln(self) -> Complex<$t> {
+                Complex::new(self.abs().ln(), self.angle())
+            }
 
-macro_rules! impl_pow {
-    ($t: ty) => {
-        pub fn powf(self, n: $t) -> Complex<$t> {
-            let r = self.abs().powf(n);
-            let theta = n * self.angle();
-            r * Complex::cis(theta)
-        }
-        pub fn powc(self, n: Complex<$t>) -> Complex<$t> {
-            (n * self.ln()).exp()
-        }
-    }
-}
+            /// Power, z^n where n is a float
+            pub fn powf(self, n: $t) -> Complex<$t> {
+                let r = self.abs().powf(n);
+                let theta = n * self.angle();
+                r * Complex::cis(theta)
+            }
+            /// Power, z^n where n is complex
+            pub fn powc(self, n: Complex<$t>) -> Complex<$t> {
+                (n * self.ln()).exp()
+            }
 
-macro_rules! impl_sqrt {
-    ($t: ty) => {
-        pub fn sqrt(self) -> Complex<$t> {
-            let (x, y) = self.into();
-            if y == 0.0 {
-                if x >= 0.0 {
-                    Complex::new(x.sqrt(), 0.0)
+            /// Square root, √z
+            pub fn sqrt(self) -> Complex<$t> {
+                let (x, y) = self.into();
+                if y == 0.0 {
+                    if x >= 0.0 {
+                        Complex::new(x.sqrt(), 0.0)
+                    } else {
+                        Complex::new(0.0, (-x).sqrt())
+                    }
                 } else {
-                    Complex::new(0.0, (-x).sqrt())
+                    let r = self.abs();
+                    let x_num = x + r;
+                    let dom = 1.0 / (2.0 * x_num).sqrt();
+                    Complex::new(x_num * dom, y * dom)
                 }
-            } else {
-                let r = self.abs();
-                let x_num = x + r;
-                let dom = 1.0 / (2.0 * x_num).sqrt();
-                Complex::new(x_num * dom, y * dom)
             }
         }
     }

@@ -13,7 +13,9 @@ pub mod c64;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
 pub struct Complex<T: Copy>{
+    /// real
     pub r: T,
+    /// imaginary
     pub i: T
 }
 
@@ -133,7 +135,7 @@ mod tests {
 
     #[test]
     fn check_const_path(){
-        assert_eq!(crate::c32::I, Complex{r: 0.0_f32, i: 1.0_f32});
+        assert_eq!(Complex::<f32>::I, Complex{r: 0.0_f32, i: 1.0_f32});
         assert_eq!(crate::c64::I, Complex{r: 0.0_f64, i: 1.0_f64});
     }
 
