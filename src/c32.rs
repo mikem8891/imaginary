@@ -34,13 +34,13 @@ mod tests {
     #[test]
     fn float_fn() {
         const PI: f32 = std::f32::consts::PI;
-        let a = Complex::new(3.0, -4.0);
+        let a: Complex<f32> = Complex::new(3.0, -4.0);
         assert_eq!(a.abs(), 5.0);
         let e_pi_i = Complex::new(0.0, PI).exp();
         assert!((e_pi_i + Complex::new(1.0, 0.0)).abs() <= f32::EPSILON);
         let a_sqrt = a.sqrt();
         assert_eq!(a_sqrt * a_sqrt, a);
-        assert_eq!(Complex::new( 4.0, 0.0).sqrt(), Complex::new(2.0, 0.0));
-        assert_eq!(Complex::new(-4.0, 0.0).sqrt(), Complex::new(0.0, 2.0));
+        assert_eq!(Complex::<f32>::new( 4.0, 0.0).sqrt(), Complex::new(2.0, 0.0));
+        assert_eq!(Complex::<f32>::new(-4.0, 0.0).sqrt(), Complex::new(0.0, 2.0));
     }
 }

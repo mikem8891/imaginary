@@ -4,6 +4,8 @@ pub const I: Complex<f64> = Complex{r: 0.0_f64, i: 1.0_f64};
 
 impl_complex_float_ops!(f64);
 
+impl_complex_fn!(f64);
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -97,7 +97,7 @@ macro_rules! impl_complex_fn {
             /// The exponential function, e^z
             pub fn exp(self) -> Complex<$t> {
                 let r = self.r.exp();
-                r * Complex::cis(self.i)
+                r * Complex::<$t>::cis(self.i)
             }
 
             /// The natural logarithm
@@ -109,7 +109,7 @@ macro_rules! impl_complex_fn {
             pub fn powf(self, n: $t) -> Complex<$t> {
                 let r = self.abs().powf(n);
                 let theta = n * self.angle();
-                r * Complex::cis(theta)
+                r * Complex::<$t>::cis(theta)
             }
             /// Power, z^n where n is complex
             pub fn powc(self, n: Complex<$t>) -> Complex<$t> {
