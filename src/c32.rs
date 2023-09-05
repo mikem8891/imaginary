@@ -1,10 +1,13 @@
 use super::*;
 
+impl_complex_display!(f32);
+
 impl_complex_float_ops!(f32);
 
 impl_complex_fn!(f32);
 
 impl Complex<f32> {
+    /// The imaginary number, √-1
     pub const I: Complex<f32> = Complex{r: 0.0, i: 1.0};
 }
 
