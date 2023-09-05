@@ -1,15 +1,41 @@
 //! # Complex Number Library
 //!
-//! This complex number library provides a simple genaric implementation of
+//! This complex number library provides a simple generic implementation of
 //! complex numbers and a more comprehensive implementation of 
-//! complex numbers for f32 and f64 types.
+//! complex numbers for `f32` and `f64` types.  The generic implementation includes 
+//! overloaded operators (`+`, `-`, `*`, and `/`).  The float specific implementations 
+//! have overloaded operators for operations between floats and `Complex`.
+//! 
+//! # Examples
+//! ```
+//! use imaginary::Complex;
+//! 
+//! let x: f64 = 3.0;
+//! let z = Complex::<f64>::new(0.0, -4.0);
+//! assert_eq!(x / (x + z), Complex::<f64>::new(0.36, 0.48));
+//! ```
+//! 
+//! Chosing a convenient type definition can make working with complex numbers as 
+//! easy as floats.
+//! 
+//! # Examples
+//! ```
+//! use imaginary::Complex;
+//! type C64 = Complex<f64>;
+//! 
+//! let z = 1.4 - 1.4 * C64::I;
+//! assert_eq!(z, C64::new(1.4, -1.4));
+//! 
+//! let z = 2.0 * C64::cis(3.1);
+//! assert_eq!(z, 2.0 * f64::cos(3.1) + 2.0 * f64::sin(3.1) * C64::I);
+//! ```
 
 use core::ops::*;
 
 #[macro_use]
 mod float;
 mod c32;
-pub mod c64;
+mod c64;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
 pub struct Complex<T: Copy>{
@@ -18,9 +44,6 @@ pub struct Complex<T: Copy>{
     /// imaginary
     pub i: T
 }
-
-pub type Complex32 = Complex<f32>;
-pub type Complex64 = Complex<f64>;
 
 impl<T: Copy> Complex<T>{
     pub fn new(real: T, imag:  T) -> Complex<T> {

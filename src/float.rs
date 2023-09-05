@@ -1,15 +1,52 @@
 macro_rules! impl_complex_display {
     ($t: ty) => {
         impl std::fmt::Display for Complex<$t> {
+            /// Provides simple display representation for the `Complex` struct
+            /// 
+            /// # Examples
+            /// ```
+            /// use imaginary::Complex;
+            ///
+            /// let num = format!("{}", Complex::<f32>{r: 3.0, i: 0.0});
+            /// assert_eq!("3", num);
+            /// let num = format!("{}", Complex::<f64>::I);
+            /// assert_eq!("i", num);
+            /// let num = format!("{}", -Complex::<f32>::I);
+            /// assert_eq!("-i", num);
+            /// let num = format!("{}", 4.0 * Complex::<f64>::I);
+            /// assert_eq!("4*i", num);
+            /// let num = format!("{}", -3.0 - Complex::<f32>::I);
+            /// assert_eq!("-3 - i", num);
+            /// let num = format!("{}", 3.0 - 4.0 * Complex::<f64>::I);
+            /// assert_eq!("3 - 4*i", num);
+            /// let num = format!("{}", -3.0 + Complex::<f32>::I);
+            /// assert_eq!("-3 + i", num);
+            /// let num = format!("{}", 3.0 + 4.0 * Complex::<f64>::I);
+            /// assert_eq!("3 + 4*i", num);
+            /// ```
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 if self.i == 0.0 {
                     write!(f, "{}", self.r)
                 } else if self.r == 0.0 {
-                    write!(f, "{} * i", self.i)
+                    if self.i == 1.0 {
+                        write!(f, "i")
+                    } else if self.i == -1.0 {
+                        write!(f, "-i")
+                    } else {
+                        write!(f, "{}*i", self.i)
+                    }
                 } else if self.i < 0.0 {
-                    write!(f, "{} - {} * i", self.r, -self.i)
+                    if self.i == -1.0 {
+                        write!(f, "{} - i", self.r)
+                    } else {
+                        write!(f, "{} - {}*i", self.r, -self.i)
+                    }
                 } else {
-                    write!(f, "{} + {} * i", self.r, self.i)
+                    if self.i == 1.0 {
+                        write!(f, "{} + i", self.r)
+                    } else {
+                        write!(f, "{} + {}*i", self.r, self.i)
+                    }
                 }
             }
         }
@@ -120,30 +157,65 @@ macro_rules! impl_complex_fn {
             /// ```
             /// use imaginary::Complex;
             /// 
-            /// let z = Complex::<f32>{r: -5.0, i:  5.0};
-            /// let theta = 3.0 * std::f32::consts::FRAC_PI_4;
+            /// let z = Complex::<f32>::new(-5.0, 5.0);
+            /// let theta = 3.0 * std::f32::consts::FRAC_PI_4; // 3π/4
             /// assert_eq!(z.angle(), theta);
             /// 
-            /// let z = Complex::<f64>{r:  5.0, i: -5.0};
-            /// let theta = -(std::f64::consts::FRAC_PI_4);
+            /// let z = Complex::<f64>::new(5.0, -5.0);
+            /// let theta = -(std::f64::consts::FRAC_PI_4); // -π/4
             /// assert_eq!(z.angle(), theta);
             /// ```
             pub fn angle(self) -> $t {
                 self.i.atan2(self.r)
             }
 
-            /// Returns cos φ + i sin φ. Equivalent to e^(φ i)
+            /// Returns cos φ + i sin φ.  Equivalent to e^(φ i)
+            /// # Examples
+            /// ```
+            /// use imaginary::Complex;
+            /// 
+            /// let z = Complex::<f32>::cis(3.1);
+            /// assert_eq!(z, f32::cos(3.1) + f32::sin(3.1) * Complex::<f32>::I);
+            /// 
+            /// let z = Complex::<f64>::cis(3.1);
+            /// assert_eq!(z, f64::cos(3.1) + f64::sin(3.1) * Complex::<f64>::I);
+            /// ```
             pub fn cis(theta: $t) -> Complex<$t> {
                 Complex::new(theta.cos(), theta.sin())
             }
 
             /// The exponential function, e^z
+            /// 
+            /// # Examples
+            /// ```
+            /// use imaginary::Complex;
+            /// 
+            /// // Euler's identity
+            /// // e^(π*i) + 1 = 0
+            /// 
+            /// let pi_i = std::f32::consts::PI * Complex::<f32>::I;
+            /// assert!((pi_i.exp() + 1.0).abs() <= f32::EPSILON);
+            /// 
+            /// let pi_i = std::f64::consts::PI * Complex::<f64>::I;
+            /// assert!((pi_i.exp() + 1.0).abs() <= f64::EPSILON);
+            /// ```
             pub fn exp(self) -> Complex<$t> {
                 let r = self.r.exp();
                 r * Complex::<$t>::cis(self.i)
             }
 
             /// The natural logarithm
+            /// 
+            /// # Examples
+            /// ```
+            /// use imaginary::Complex;
+            /// 
+            /// let pi_i = std::f32::consts::PI * Complex::<f32>::I;
+            /// assert_eq!(Complex::<f32>::new(-1.0, 0.0).ln(), pi_i);
+            /// 
+            /// let pi_i = std::f64::consts::PI * Complex::<f64>::I;
+            /// assert_eq!(Complex::<f64>::new(-1.0, 0.0).ln(), pi_i);
+            /// ```
             pub fn ln(self) -> Complex<$t> {
                 Complex::new(self.abs().ln(), self.angle())
             }
