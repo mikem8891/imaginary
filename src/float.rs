@@ -242,11 +242,7 @@ macro_rules! impl_complex_fn {
             pub fn sqrt(self) -> Complex<$t> {
                 let (x, y) = self.into();
                 if y == 0.0 {
-                    if x >= 0.0 {
-                        Complex::new(x.sqrt(), 0.0)
-                    } else {
-                        Complex::new(0.0, (-x).sqrt())
-                    }
+                    Complex::<$t>::sqrt(self.r)
                 } else {
                     let r = self.abs();
                     let x_num = x + r;
