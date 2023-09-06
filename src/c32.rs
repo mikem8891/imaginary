@@ -8,6 +8,11 @@ impl_complex_fn!(f32);
 
 impl Complex<f32> {
     /// The imaginary number, √-1
+    /// # Examples
+    /// ```
+    /// use imaginary::Complex;
+    /// assert_eq!(Complex::<f32>::I, Complex::new(0.0, 1.0));
+    /// ```
     pub const I: Complex<f32> = Complex{r: 0.0, i: 1.0};
 }
 

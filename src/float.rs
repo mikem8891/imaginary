@@ -150,6 +150,22 @@ macro_rules! impl_complex_fn {
                 self.r.hypot(self.i)
             }
 
+            /// Returns a `Complex` in the same direction, but with a magnitude of 1 
+            /// 
+            /// # Examples
+            /// 
+            /// ```
+            /// use imaginary::Complex;
+            /// let z = Complex::<f32>{r: -3.0, i:  4.0};
+            /// assert_eq!(z.sign(), Complex::<f32>::new(-0.6, 0.8));
+            /// 
+            /// let z = Complex::<f64>{r:  3.0, i: -4.0};
+            /// assert_eq!(z.sign(), Complex::<f64>::new(0.6, -0.8));
+            /// ```
+            pub fn sign(self) -> Complex<$t> {
+                self / self.abs()
+            }
+
             /// Phase angle
             /// 
             /// # Examples
@@ -232,6 +248,14 @@ macro_rules! impl_complex_fn {
             }
 
             /// Square root, √z
+            /// 
+            /// # Examples
+            /// ```
+            /// use imaginary::Complex;
+            /// 
+            /// let neg_1 = Complex::<f32>::new(-1.0, 0.0);
+            /// assert_eq!(neg_1.sqrt(), Complex::<f32>::I);
+            /// ```
             pub fn sqrt(self) -> Complex<$t> {
                 let (x, y) = self.into();
                 if y == 0.0 {
