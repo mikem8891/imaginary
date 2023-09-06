@@ -230,7 +230,14 @@ macro_rules! impl_complex_fn {
             pub fn powc(self, n: Complex<$t>) -> Complex<$t> {
                 (n * self.ln()).exp()
             }
-
+            /// Square root, √x
+            pub fn sqrt(x: f32) -> Complex<$t> {
+                if x >= 0.0 {
+                    Complex::new(x.sqrt(), 0.0)
+                } else {
+                    Complex::new(0.0, (-x).sqrt())
+                }
+            }
             /// Square root, √z
             pub fn sqrt(self) -> Complex<$t> {
                 let (x, y) = self.into();
