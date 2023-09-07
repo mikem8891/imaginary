@@ -186,7 +186,7 @@ macro_rules! impl_complex_fn {
                 self.i.atan2(self.r)
             }
 
-            /// Returns cos φ + i sin φ.  Equivalent to e^(φ i)
+            /// Returns cos θ + i sin θ.  Equivalent to e^(θ i)
             /// # Examples
             /// ```
             /// use imaginary::Complex;

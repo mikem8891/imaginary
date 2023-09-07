@@ -42,12 +42,25 @@ mod float;
 mod c32;
 mod c64;
 
+/// A struct for representing complex numbers 
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
 pub struct Complex<T: Copy>{
     /// real
     pub r: T,
     /// imaginary
     pub i: T
+}
+
+/// An extension trait to give scalar types complex capabilities
+pub trait ComplexExt: Copy {
+    /// cis θ = cos θ + i sin θ
+    fn cis(self) -> Complex<Self>;
+    /// Natural logarithm 
+    fn ln(self) -> Complex<Self>;
+    /// Scalar raised to a complex power
+    fn powc(self, exp: Complex<Self>) -> Complex<Self>;
+    /// Square root
+    fn sqrt(self) -> Complex<Self>;
 }
 
 impl<T: Copy> Complex<T>{
