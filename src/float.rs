@@ -150,7 +150,8 @@ macro_rules! impl_complex_fn {
                 self.r.hypot(self.i)
             }
 
-            /// Returns a `Complex` in the same direction, but with a magnitude of 1 
+            /// Returns a `Complex` in the same direction, 
+            /// but with a magnitude of 1 
             /// 
             /// # Examples
             /// 
@@ -190,8 +191,9 @@ macro_rules! impl_complex_fn {
             /// ```
             /// use imaginary::Complex;
             /// 
+            /// let i = Complex::<f32>::I;
             /// let z = Complex::<f32>::cis(3.1);
-            /// assert_eq!(z, f32::cos(3.1) + f32::sin(3.1) * Complex::<f32>::I);
+            /// assert_eq!(z, f32::cos(3.1) + f32::sin(3.1) * i);
             /// 
             /// let z = Complex::<f64>::cis(3.1);
             /// assert_eq!(z, f64::cos(3.1) + f64::sin(3.1) * Complex::<f64>::I);

@@ -1,14 +1,15 @@
 //! # Complex Number Library
 //!
 //! This complex number library provides a simple generic implementation of
-//! complex numbers and a more comprehensive implementation of 
-//! complex numbers for [`f32`] and [`f64`] floating-point types.  Complex number 
-//! functionality is implemented by the [`Complex`] struct.  The generic implementation 
+//! complex numbers and a more comprehensive implementation of complex numbers 
+//! for [`f32`] and [`f64`] floating-point types.  Complex number functionality
+//! is implemented by the [`Complex`] struct.  The generic implementation 
 //! includes overloaded operators (`+`, `-`, `*`, and `/`).  The float specific 
-//! implementations have overloaded operators for operations between floats and [`Complex`] and 
-//! additional functionality; such as, [`abs`](Complex::abs), [`sign`](Complex::sign), 
-//! [`angle`](Complex::angle), [`cis`](Complex::cis), [`exp`](Complex::cis), 
-//! [`powf`](Complex::powf), [`powc`](Complex::powc), and [`sqrt`](Complex::sqrt).
+//! implementations have overloaded operators for operations between floats and
+//! [`Complex`] and additional functionality; such as, [`abs`](Complex::abs), 
+//! [`sign`](Complex::sign), [`angle`](Complex::angle), [`cis`](Complex::cis), 
+//! [`exp`](Complex::cis), [`powf`](Complex::powf), [`powc`](Complex::powc), 
+//! and [`sqrt`](Complex::sqrt).
 //! 
 //! # Examples
 //! ```
@@ -19,8 +20,8 @@
 //! assert_eq!(x / (x + z), Complex::<f64>::new(0.36, 0.48));
 //! ```
 //! 
-//! Chosing a convenient type definition can make working with complex numbers as 
-//! easy as floats.
+//! Chosing a convenient type definition can make working with complex numbers 
+//! as easy as floats.
 //! 
 //! # Examples
 //! ```
