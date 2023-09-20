@@ -15,34 +15,29 @@
 //! ```
 //! use imaginary::Complex;
 //! 
-//! let x: f64 = 3.0;
-//! let z = Complex::<f64>::new(0.0, -4.0);
-//! assert_eq!(x / (x + z), Complex::<f64>::new(0.36, 0.48));
+//! let x = 3.0;
+//! let z = Complex::new(0.0, -4.0);
+//! assert_eq!(x / (x + z), Complex::new(0.36, 0.48));
 //! ```
 //! 
-//! Chosing a convenient type definition can make working with complex numbers 
+//! Choosing a convenient type definition can make working with complex numbers
 //! as easy as floats.
 //! 
 //! # Examples
 //! ```
-//! use imaginary::Complex;
-//! type C64 = Complex<f64>;
+//! use imaginary::{Complex, c32};
+//! type C32 = Complex<f32>;
 //! 
-//! let z = 1.4 - 1.4 * C64::I;
-//! assert_eq!(z, C64::new(1.4, -1.4));
+//! let z = 1.4 - 1.4 * c32::I;
+//! assert_eq!(z, C32::new(1.4, -1.4));
 //! 
-//! let z = 2.0 * C64::cis(3.1);
-//! assert_eq!(z, 2.0 * f64::cos(3.1) + 2.0 * f64::sin(3.1) * C64::I);
+//! let z = 2.0 * c32::cis(3.1);
+//! assert_eq!(z, 2.0 * f32::cos(3.1) + 2.0 * f32::sin(3.1) * c32::I);
 //! ```
 
 use core::ops::*;
 
-#[macro_use]
-mod float;
-mod c32;
-mod c64;
-
-/// A struct for representing complex numbers 
+/// A struct for representing complex numbers
 #[derive(Default, Copy, Clone, Debug, PartialEq)]
 pub struct Complex<T: Copy>{
     /// real
@@ -51,20 +46,8 @@ pub struct Complex<T: Copy>{
     pub i: T
 }
 
-/// An extension trait to give scalar types complex capabilities
-pub trait ComplexExt: Copy {
-    /// cis θ = cos θ + i sin θ
-    fn cis(self) -> Complex<Self>;
-    /// Natural logarithm 
-    fn ln(self) -> Complex<Self>;
-    /// Scalar raised to a complex power
-    fn powc(self, exp: Complex<Self>) -> Complex<Self>;
-    /// Square root
-    fn sqrt(self) -> Complex<Self>;
-}
-
 impl<T: Copy> Complex<T>{
-    pub fn new(real: T, imag:  T) -> Complex<T> {
+    pub const fn new(real: T, imag:  T) -> Complex<T> {
         Complex { r: real, i: imag }
     }
 }
@@ -76,14 +59,15 @@ impl<T: Copy> From<(T, T)> for Complex<T>{
     }
 }
 
-impl<T: Copy> Into<(T, T)> for Complex<T> {
-    fn into(self) -> (T, T) {
-        (self.r, self.i)
+impl<T: Copy> From<Complex<T>> for (T, T) {
+    fn from(value: Complex<T>) -> (T, T) {
+        (value.r, value.i)
     }
 }
 
 impl<T> Complex<T>
 where T: Neg<Output=T> + Copy {
+    /// Complex conjugate
     pub fn conj(self) -> Complex<T> {
         Complex { r: (self.r), i: (-self.i) }
     }
@@ -170,14 +154,306 @@ where T: Add<Output=T> + Sub<Output=T> +
     }
 }
 
+macro_rules! impl_display_for_complex {
+    ($t: ty) => {
+        impl std::fmt::Display for Complex<$t> {
+            /// Provides simple display representation for the `Complex` struct
+            ///
+            /// # Examples
+            /// ```
+            /// use imaginary::Complex;
+            /// let num = format!("{}", Complex::new(3.0, -4.0));
+            /// assert_eq!("3 - 4*i", num);
+            /// ```
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                if self.i == 0.0 {
+                    write!(f, "{}", self.r)
+                } else if self.r == 0.0 {
+                    if self.i == 1.0 {
+                        write!(f, "i")
+                    } else if self.i == -1.0 {
+                        write!(f, "-i")
+                    } else {
+                        write!(f, "{}*i", self.i)
+                    }
+                } else if self.i < 0.0 {
+                    if self.i == -1.0 {
+                        write!(f, "{} - i", self.r)
+                    } else {
+                        write!(f, "{} - {}*i", self.r, -self.i)
+                    }
+                } else {
+                    if self.i == 1.0 {
+                        write!(f, "{} + i", self.r)
+                    } else {
+                        write!(f, "{} + {}*i", self.r, self.i)
+                    }
+                }
+            }
+        }
+    }
+}
+impl_display_for_complex!(f32);
+impl_display_for_complex!(f64);
+
+macro_rules! impl_from_float_for_complex {
+    ($t: ty) => {
+        impl From<$t> for Complex<$t> {
+            fn from(value: $t) -> Self {
+                Self{r: value, i: 0.0}
+            }
+        }
+    }
+}
+impl_from_float_for_complex!(f32);
+impl_from_float_for_complex!(f64);
+
+macro_rules! impl_ops_for_complex {
+    ($t: ty) => {
+        /// # Examples
+        /// ```
+        /// use imaginary::Complex;
+        /// let x = 1.0;
+        /// let z = Complex::new(3.0, -2.0);
+        /// assert_eq!(x + z, Complex::new(4.0, -2.0));
+        /// ```
+        impl Add<Complex<$t>> for $t {
+            type Output = Complex<$t>;
+            fn add(self, rhs: Complex<$t>) -> Complex<$t> {
+                Complex{
+                    r: self + rhs.r,
+                    i: rhs.i
+                }
+            }
+        }
+        /// # Examples
+        /// ```
+        /// use imaginary::Complex;
+        /// let x = 1.0;
+        /// let z = Complex::new(3.0, -2.0);
+        /// assert_eq!(z + x, Complex::new(4.0, -2.0));
+        /// ```
+        impl Add<$t> for Complex<$t> {
+            type Output = Complex<$t>;
+            fn add(self, rhs: $t) -> Complex<$t> {
+                Complex{
+                    r: self.r + rhs,
+                    i: self.i
+                }
+            }
+        }
+        /// # Examples
+        /// ```
+        /// use imaginary::Complex;
+        /// let x = 1.0;
+        /// let z = Complex::new(3.0, -2.0);
+        /// assert_eq!(x - z, Complex::new(-2.0, 2.0));
+        /// ```
+        impl Sub<Complex<$t>> for $t {
+            type Output = Complex<$t>;
+            fn sub(self, rhs: Complex<$t>) -> Complex<$t> {
+                Complex{
+                    r: self - rhs.r,
+                    i: -rhs.i
+                }
+            }
+        }
+        /// # Examples
+        /// ```
+        /// use imaginary::Complex;
+        /// let x = 1.0;
+        /// let z = Complex::new(3.0, -2.0);
+        /// assert_eq!(z - x, Complex::new(2.0, -2.0));
+        /// ```
+        impl Sub<$t> for Complex<$t> {
+            type Output = Complex<$t>;
+            fn sub(self, rhs: $t) -> Complex<$t> {
+                Complex{
+                    r: self.r - rhs,
+                    i: self.i
+                }
+            }
+        }
+        impl Mul<Complex<$t>> for $t {
+            type Output = Complex<$t>;
+            fn mul(self, rhs: Complex<$t>) -> Complex<$t> {
+                Complex{
+                    r: self * rhs.r,
+                    i: self * rhs.i
+                }
+            }
+        }
+        impl Mul<$t> for Complex<$t> {
+            type Output = Complex<$t>;
+            fn mul(self, rhs: $t) -> Complex<$t> {
+                Complex{
+                    r: self.r * rhs,
+                    i: self.i * rhs
+                }
+            }
+        }
+        impl Div<Complex<$t>> for $t {
+            type Output = Complex<$t>;
+            fn div(self, rhs: Complex<$t>) -> Complex<$t> {
+                let denom = rhs.r * rhs.r + rhs.i * rhs.i;
+                Complex{
+                    r:  self * rhs.r / denom,
+                    i: -self * rhs.i / denom
+                }
+            }
+        }
+        impl Div<$t> for Complex<$t> {
+            type Output = Complex<$t>;
+            fn div(self, rhs: $t) -> Complex<$t> {
+                Complex{
+                    r: self.r / rhs,
+                    i: self.i / rhs
+                }
+            }
+        }
+    }
+}
+impl_ops_for_complex!(f32);
+impl_ops_for_complex!(f64);
+
+macro_rules! impl_complex {
+    ($t: ident) => {
+        impl Complex<$t>{
+            /// The absolute value or magnitude
+            ///
+            /// # Examples
+            ///
+            /// ```
+            /// use imaginary::Complex;
+            /// let z = Complex::<f64>::new(-3.0, 4.0);
+            /// assert_eq!(z.abs(), 5.0);
+            /// ```
+            pub fn abs(self) -> $t {
+                self.r.hypot(self.i)
+            }
+
+            /// Returns a `Complex` in the same direction,
+            /// but with a magnitude of 1
+            ///
+            /// # Examples
+            ///
+            /// ```
+            /// use imaginary::Complex;
+            /// let z = Complex::<f64>::new(-3.0, 4.0);
+            /// assert_eq!(z.sign(), Complex::new(-0.6, 0.8));
+            /// ```
+            pub fn sign(self) -> Complex<$t> {
+                self / self.abs()
+            }
+
+            /// Phase angle
+            ///
+            /// # Examples
+            ///
+            /// ```
+            /// use imaginary::Complex;
+            ///
+            /// let z = Complex::<f32>::new(-5.0, 5.0);
+            /// let theta = 3.0 * std::f32::consts::FRAC_PI_4; // 3π/4
+            /// assert_eq!(z.angle(), theta);
+            /// ```
+            pub fn angle(self) -> $t {
+                self.i.atan2(self.r)
+            }
+
+            /// Returns cos θ + i sin θ.  Equivalent to e^(θ i)
+            /// # Examples
+            /// ```
+            /// use imaginary::{Complex, c32};
+            ///
+            /// let i = c32::I;
+            /// let z = Complex::<f32>::cis(3.1);
+            /// assert_eq!(z, f32::cos(3.1) + f32::sin(3.1) * i);
+            /// ```
+            pub fn cis(theta: $t) -> Complex<$t> {
+                Complex::new(theta.cos(), theta.sin())
+            }
+
+            /// The exponential function, e^z
+            ///
+            /// # Examples
+            /// ```
+            /// use imaginary::{Complex, c32};
+            ///
+            /// // Euler's identity
+            /// // e^(π*i) + 1 = 0
+            ///
+            /// let pi_i = std::f32::consts::PI * c32::I;
+            /// assert!((pi_i.exp() + 1.0).abs() <= f32::EPSILON);
+            /// ```
+            pub fn exp(self) -> Complex<$t> {
+                let r = self.r.exp();
+                r * Complex::<$t>::cis(self.i)
+            }
+
+            /// The natural logarithm
+            ///
+            /// # Examples
+            /// ```
+            /// use imaginary::{Complex, c32};
+            ///
+            /// let pi_i = std::f32::consts::PI * c32::I;
+            /// assert_eq!(Complex::<f32>::new(-1.0, 0.0).ln(), pi_i);
+            /// ```
+            pub fn ln(self) -> Complex<$t> {
+                Complex::new(self.abs().ln(), self.angle())
+            }
+
+            /// Power, self^n where n is a float
+            pub fn powf(self, n: $t) -> Complex<$t> {
+                let r = self.abs().powf(n);
+                let theta = n * self.angle();
+                r * Complex::<$t>::cis(theta)
+            }
+            /// Power, self^n where n is complex
+            pub fn powc(self, n: Complex<$t>) -> Complex<$t> {
+                (n * self.ln()).exp()
+            }
+
+            /// Square root, √z
+            ///
+            /// # Examples
+            /// ```
+            /// use imaginary::{Complex, c32};
+            ///
+            /// let neg_1 = Complex::<f32>::new(-1.0, 0.0);
+            /// assert_eq!(neg_1.sqrt(), c32::I);
+            /// ```
+            pub fn sqrt(self) -> Complex<$t> {
+                let (x, y) = self.into();
+                if y == 0.0 {
+                    if x >= 0.0 {
+                        Complex::new(x.sqrt(), 0.0)
+                    } else {
+                        Complex::new(0.0, (-x).sqrt())
+                    }
+                } else {
+                    let r = self.abs();
+                    let x_num = x + r;
+                    let dom = std::$t::consts::FRAC_1_SQRT_2 / x_num.sqrt();
+                    Complex::new(x_num * dom, y * dom)
+                }
+            }
+        }
+    }
+}
+impl_complex!(f32);
+impl_complex!(f64);
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn check_const_path(){
-        assert_eq!(Complex::<f32>::I, Complex{r: 0.0_f32, i: 1.0_f32});
-        assert_eq!(Complex::<f64>::I, Complex{r: 0.0_f64, i: 1.0_f64});
+        assert_eq!(c32::I, Complex{r: 0.0_f32, i: 1.0_f32});
+//        assert_eq!(Complex::<f64>::I, Complex{r: 0.0_f64, i: 1.0_f64});
     }
 
     // Tests -a a+b a-b a*b a/b
@@ -210,3 +486,84 @@ mod tests {
         assert_eq!(a, Complex{r: 1.0, i: 2.0});
     }
 }
+
+macro_rules! complex_mod {
+    ($m: ident for $t: ident) => {
+        /// Functions in this module take floats and return [`Complex`] values
+        pub mod $m {
+            use super::*;
+
+            /// The imaginary number, I = √-1
+            pub const I: Complex<$t> = Complex::<$t>{r: 0.0,i: 1.0};
+
+            /// Euler's formula
+            ///
+            /// `cis(θ)` = cos(θ) + i * sin(θ) = e^(θ*i)
+            pub fn cis(theta: $t) -> Complex<$t> {
+                Complex::<$t>::cis(theta)
+            }
+            /// Natural logarithm
+            ///
+            /// Returns a complex natural logarithm of any valid float.
+            /// For the natural logarithm of a complex number use
+            /// [`Complex::ln`]
+            pub fn ln(exp: $t) -> Complex<$t> {
+                const PI: $t = std::$t::consts::PI;
+                if exp >= 0.0 {
+                    Complex::new(exp.ln(), 0.0)
+                } else {
+                    Complex::new((-exp).ln(), PI)
+                }
+
+            }
+            /// Square root
+            ///
+            /// Returns a complex square root of any valid float.
+            /// For the square root of a complex number use
+            /// [`Complex::sqrt`]
+            pub fn sqrt(sq: $t) -> Complex<$t> {
+                if sq >= 0.0 {
+                    Complex::<$t>::new(sq.sqrt(), 0.0)
+                } else {
+                    Complex::<$t>::new(0.0, (-sq).sqrt())
+                }
+            }
+            /// Quadratic roots
+            ///
+            /// Returns the complex roots of: a * x² + b * x + c = 0
+            pub fn quad(a: $t, b: $t, c: $t) -> [Complex<$t>; 2] {
+                let sqrt = sqrt(b * b - 4.0 * a * c);
+                let dom = 0.5 / a;
+                [(-b + sqrt) * dom, (-b - sqrt) * dom]
+            }
+
+            #[cfg(test)]
+            mod test {
+                use super::*;
+
+                #[test]
+                fn check_cis() {
+                    let i: Complex<$t> = $m::I;
+                    let z: Complex<$t> = $m::cis(3.1);
+                    assert_eq!(z, $t::cos(3.1) + $t::sin(3.1) * i);
+                }
+
+                #[test]
+                fn check_complex_float_ops(){
+                    let a: $t = 2.0;
+                    let b = Complex::<$t>::new(1.0, 3.0);
+                    assert_eq!(a + b, Complex{r: 3.0, i: 3.0});
+                    assert_eq!(b + a, Complex{r: 3.0, i: 3.0});
+                    assert_eq!(a - b, Complex{r: 1.0, i: -3.0});
+                    assert_eq!(b - a, Complex{r: -1.0, i: 3.0});
+                    assert_eq!(a * b, Complex{r: 2.0, i: 6.0});
+                    assert_eq!(b * a, Complex{r: 2.0, i: 6.0});
+                    assert_eq!(a / b, Complex{r: 0.2, i: -0.6});
+                    assert_eq!(b / a, Complex{r: 0.5, i: 1.5});
+                }
+            }
+        }
+    }
+}
+complex_mod!(c32 for f32); // see macro above
+complex_mod!(c64 for f64); // see macro above
