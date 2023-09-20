@@ -428,15 +428,22 @@ macro_rules! impl_complex {
                 let (x, y) = self.into();
                 if y == 0.0 {
                     if x >= 0.0 {
-                        Complex::new(x.sqrt(), 0.0)
+                        Complex::new(x.sqrt(), y)
                     } else {
-                        Complex::new(0.0, (-x).sqrt())
+                        Complex::new(0.0, y.signum() * (-x).sqrt())
                     }
                 } else {
                     let r = self.abs();
-                    let x_num = x + r;
-                    let dom = std::$t::consts::FRAC_1_SQRT_2 / x_num.sqrt();
-                    Complex::new(x_num * dom, y * dom)
+                    let x_num = r + x;
+                    if x_num != 0.0 {
+                        use std::$t::consts::FRAC_1_SQRT_2;
+                        let x_rt = x_num.sqrt();
+                        let dom = FRAC_1_SQRT_2 / x_rt;
+                        Complex::new(x_rt * FRAC_1_SQRT_2, y * dom)
+                    } else {
+                        let x_rt = (-x).sqrt();
+                        Complex::new(0.5 * y.abs() / x_rt, y.signum() * x_rt)
+                    }
                 }
             }
         }
@@ -532,9 +539,14 @@ macro_rules! complex_mod {
             ///
             /// Returns the complex roots of: a * x² + b * x + c = 0
             pub fn quad(a: $t, b: $t, c: $t) -> [Complex<$t>; 2] {
-                let sqrt = sqrt(b * b - 4.0 * a * c);
-                let dom = 0.5 / a;
-                [(-b + sqrt) * dom, (-b - sqrt) * dom]
+                if a != 0.0 {
+                    let sqrt = sqrt(b * b - 4.0 * a * c);
+                    let dom = 0.5 / a;
+                    [(-b + sqrt) * dom, (-b - sqrt) * dom]
+                } else {
+                    let root = (-c / b).into();
+                    [root, root]
+                }
             }
 
             #[cfg(test)]
@@ -560,6 +572,49 @@ macro_rules! complex_mod {
                     assert_eq!(b * a, Complex{r: 2.0, i: 6.0});
                     assert_eq!(a / b, Complex{r: 0.2, i: -0.6});
                     assert_eq!(b / a, Complex{r: 0.5, i: 1.5});
+                }
+
+                #[test]
+                fn check_sqrt(){
+                    let squares = [
+                        Complex::new(-1.0, 0.5 *  $t::EPSILON.sqrt()),
+                        Complex::new(-1.0, 0.5 * -$t::EPSILON.sqrt()),
+                        Complex::new(-1.0, 2.0 *  $t::EPSILON.sqrt()),
+                        Complex::new(-1.0, 2.0 * -$t::EPSILON.sqrt()),
+                        Complex::new( 1.0, 0.5 *  $t::EPSILON.sqrt()),
+                        Complex::new( 1.0, 0.5 * -$t::EPSILON.sqrt()),
+                        Complex::new( 1.0, 2.0 *  $t::EPSILON.sqrt()),
+                        Complex::new( 1.0, 2.0 * -$t::EPSILON.sqrt()),
+                        Complex::new(-2.5, -2.5),
+                        Complex::new( 0.5, -0.5),
+                        Complex::new(-2.5,  2.5),
+                        Complex::new( 0.5,  0.5),
+                        Complex::new(-5.0,  0.0),
+                        Complex::new( 5.0,  0.0)
+                    ];
+                    println!("{}", $t::EPSILON);
+                    for &sq in squares.iter() {
+                        let sqrt = sq.sqrt();
+                        let ep   = sq.abs() * $t::EPSILON;
+                        let diff = ((sqrt * sqrt) - sq).abs();
+                        println!("sq      = {sq}");
+                        println!("sqrt^2  = {}", sqrt * sqrt);
+                        println!("diff/ep = {}", diff / ep);
+                        assert!(diff <= 2.0 * ep);
+                    }
+                }
+
+                #[test]
+                fn check_quad(){
+                    let coeff: [$t; 3] = [1.0, 4.0, 13.0];
+                    let [a, b, c]= coeff;
+                    println!("epsilon = {}", $t::EPSILON);
+                    for &root in $m::quad(a, b, c).iter() {
+                        let sum = a * root * root + b * root + c;
+                        println!("root = {root}");
+                        println!("sum = {sum}");
+                        assert!(sum.abs() <= $t::EPSILON);
+                    }
                 }
             }
         }
