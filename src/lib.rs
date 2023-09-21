@@ -606,14 +606,19 @@ macro_rules! complex_mod {
 
                 #[test]
                 fn check_quad(){
-                    let coeff: [$t; 3] = [1.0, 4.0, 13.0];
-                    let [a, b, c]= coeff;
-                    println!("epsilon = {}", $t::EPSILON);
-                    for &root in $m::quad(a, b, c).iter() {
-                        let sum = a * root * root + b * root + c;
-                        println!("root = {root}");
-                        println!("sum = {sum}");
-                        assert!(sum.abs() <= $t::EPSILON);
+                    let coeffs = [
+                        [1.0, -4.0, 13.0],
+                        [1.0, -2.0, 2.0]
+                    ];
+                    for &coeff in coeffs.iter() {
+                        let [a, b, c]= coeff;
+                        println!("epsilon = {}", $t::EPSILON);
+                        for &root in $m::quad(a, b, c).iter() {
+                            let sum = a * root * root + b * root + c;
+                            println!("root = {root}");
+                            println!("sum = {sum}");
+                            assert!(sum.abs() <= $t::EPSILON);
+                        }
                     }
                 }
             }
