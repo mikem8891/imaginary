@@ -502,6 +502,9 @@ macro_rules! complex_mod {
 
             /// The imaginary number, I = √-1
             pub const I: Complex<$t> = Complex::<$t>{r: 0.0,i: 1.0};
+            const SQRT_3: $t = 1.73205_08075_68877_29352_74463_41505_8724;
+            /// The complex cube root of one, CBRT_1 = ∛1
+            pub const CBRT_1: Complex<$t> = Complex::new(-0.5, 0.5 * SQRT_3};
 
             /// Euler's formula
             ///
