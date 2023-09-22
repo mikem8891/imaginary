@@ -102,6 +102,13 @@ where T: Neg<Output=T> + Copy {
     }
 }
 
+/// # Example
+/// ```
+/// use imaginary::Complex;
+/// let z = Complex::new(1.0,  4.0);
+/// let w = Complex::new(3.0, -2.0);
+/// assert_eq!(z + w, Complex::new(4.0, 2.0));
+/// ```
 impl<T> Add for Complex<T>
 where T: Add<Output=T> + Copy {
     type Output = Complex<T>;
@@ -110,6 +117,13 @@ where T: Add<Output=T> + Copy {
     }
 }
 
+/// # Example
+/// ```
+/// use imaginary::Complex;
+/// let z = Complex::new(1.0,  4.0);
+/// let w = Complex::new(3.0, -2.0);
+/// assert_eq!(z - w, Complex::new(-2.0, 6.0));
+/// ```
 impl<T> Sub for Complex<T>
 where T: Sub<Output=T> + Copy {
     type Output = Complex<T>;
@@ -118,6 +132,13 @@ where T: Sub<Output=T> + Copy {
     }
 }
 
+/// # Example
+/// ```
+/// use imaginary::Complex;
+/// let z = Complex::new(1.0,  4.0);
+/// let w = Complex::new(3.0, -2.0);
+/// assert_eq!(z * w, Complex::new(11.0, 10.0));
+/// ```
 impl<T> Mul for Complex<T>
 where T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Copy {
     type Output = Complex<T>;
@@ -129,6 +150,13 @@ where T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Copy {
     }
 }
 
+/// # Example
+/// ```
+/// use imaginary::Complex;
+/// let z = Complex::new(1.0,  2.0);
+/// let w = Complex::new(3.0, -4.0);
+/// assert_eq!(z / w, Complex::new(-0.2, 0.4));
+/// ```
 impl<T> Div for Complex<T>
 where T: Add<Output=T> + Sub<Output=T> + 
          Mul<Output=T> + Div<Output=T> + Copy {
@@ -144,6 +172,13 @@ where T: Add<Output=T> + Sub<Output=T> +
 
 // Assign operators (+=, -=, *=, /=)
 
+/// # Example
+/// ```
+/// use imaginary::Complex;
+/// let mut z = Complex::new(1.0,  4.0);
+/// z += Complex::new(3.0, -2.0);
+/// assert_eq!(z, Complex::new(4.0, 2.0));
+/// ```
 impl<T> AddAssign for Complex<T>
 where T: AddAssign + Copy {
     fn add_assign(&mut self, rhs: Self) {
@@ -152,6 +187,13 @@ where T: AddAssign + Copy {
     }
 }
 
+/// # Example
+/// ```
+/// use imaginary::Complex;
+/// let mut z = Complex::new(1.0,  4.0);
+/// z -= Complex::new(3.0, -2.0);
+/// assert_eq!(z, Complex::new(-2.0, 6.0));
+/// ```
 impl<T> SubAssign for Complex<T>
 where T: SubAssign + Copy {
     fn sub_assign(&mut self, rhs: Self) {
@@ -160,6 +202,13 @@ where T: SubAssign + Copy {
     }
 }
 
+/// # Example
+/// ```
+/// use imaginary::Complex;
+/// let mut z = Complex::new(1.0,  4.0);
+/// z *= Complex::new(3.0, -2.0);
+/// assert_eq!(z, Complex::new(11.0, 10.0));
+/// ```
 impl<T> MulAssign for Complex<T>
 where T: Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Copy {
     fn mul_assign(&mut self, rhs: Self) {
@@ -167,6 +216,13 @@ where T: Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Copy {
     }
 }
 
+/// # Example
+/// ```
+/// use imaginary::Complex;
+/// let mut z = Complex::new(1.0,  2.0);
+/// z /= Complex::new(3.0, -4.0);
+/// assert_eq!(z, Complex::new(-0.2, 0.4));
+/// ```
 impl<T> DivAssign for Complex<T>
 where T: Add<Output=T> + Sub<Output=T> + 
          Mul<Output=T> + Div<Output=T> + Copy {
@@ -295,6 +351,13 @@ macro_rules! impl_ops_for_complex {
                 }
             }
         }
+        /// # Examples
+        /// ```
+        /// use imaginary::Complex;
+        /// let x = 3.0;
+        /// let z = Complex::new(1.0, -2.0);
+        /// assert_eq!(x * z, Complex::new(3.0, -6.0));
+        /// ```
         impl Mul<Complex<$t>> for $t {
             type Output = Complex<$t>;
             fn mul(self, rhs: Complex<$t>) -> Complex<$t> {
@@ -304,6 +367,13 @@ macro_rules! impl_ops_for_complex {
                 }
             }
         }
+        /// # Examples
+        /// ```
+        /// use imaginary::Complex;
+        /// let x = 3.0;
+        /// let z = Complex::new(1.0, -2.0);
+        /// assert_eq!(z * x, Complex::new(3.0, -6.0));
+        /// ```
         impl Mul<$t> for Complex<$t> {
             type Output = Complex<$t>;
             fn mul(self, rhs: $t) -> Complex<$t> {
@@ -313,6 +383,13 @@ macro_rules! impl_ops_for_complex {
                 }
             }
         }
+        /// # Example
+        /// ```
+        /// use imaginary::Complex;
+        /// let x = 5.0;
+        /// let z = Complex::new(3.0, -4.0);
+        /// assert_eq!(x / z, Complex::new(0.6, 0.8));
+        /// ```
         impl Div<Complex<$t>> for $t {
             type Output = Complex<$t>;
             fn div(self, rhs: Complex<$t>) -> Complex<$t> {
@@ -323,6 +400,13 @@ macro_rules! impl_ops_for_complex {
                 }
             }
         }
+        /// # Example
+        /// ```
+        /// use imaginary::Complex;
+        /// let x = 5.0;
+        /// let z = Complex::new(3.0, -4.0);
+        /// assert_eq!(z / x, Complex::new(0.6, -0.8));
+        /// ```
         impl Div<$t> for Complex<$t> {
             type Output = Complex<$t>;
             fn div(self, rhs: $t) -> Complex<$t> {
