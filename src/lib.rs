@@ -416,21 +416,13 @@ macro_rules! impl_complex {
             }
 
             /// Square root, √z
-            ///
-            /// # Examples
-            /// ```
-            /// use imaginary::{Complex, c32};
-            ///
-            /// let neg_1 = Complex::<f32>::new(-1.0, 0.0);
-            /// assert_eq!(neg_1.sqrt(), c32::I);
-            /// ```
             pub fn sqrt(self) -> Complex<$t> {
                 let (x, y) = self.into();
                 if y == 0.0 {
                     if x >= 0.0 {
                         Complex::new(x.sqrt(), y)
                     } else {
-                        Complex::new(0.0, y.signum() * (-x).sqrt())
+                        Complex::new(0.0, (-x).sqrt().copysign(y))
                     }
                 } else {
                     let r = self.abs();
@@ -438,11 +430,10 @@ macro_rules! impl_complex {
                     if x_num != 0.0 {
                         use std::$t::consts::FRAC_1_SQRT_2;
                         let x_rt = x_num.sqrt();
-                        let dom = FRAC_1_SQRT_2 / x_rt;
-                        Complex::new(x_rt * FRAC_1_SQRT_2, y * dom)
+                        Complex::new(x_rt, y / x_rt) * FRAC_1_SQRT_2
                     } else {
                         let x_rt = (-x).sqrt();
-                        Complex::new(0.5 * y.abs() / x_rt, y.signum() * x_rt)
+                        Complex::new(0.5 * y.abs() / x_rt, x_rt.copysign(y))
                     }
                 }
             }
@@ -498,13 +489,23 @@ macro_rules! complex_mod {
     ($m: ident for $t: ident) => {
         /// Functions in this module take floats and return [`Complex`] values
         pub mod $m {
-            use super::*;
+            use std::assert_ne;
+use super::*;
 
-            /// The imaginary number, I = √-1
-            pub const I: Complex<$t> = Complex::<$t>{r: 0.0,i: 1.0};
+            /// The imaginary number, `I` = √-1
+            ///
+            /// `I` = i
+            ///
+            /// `I`² = -1
+            pub const I: Complex<$t> = Complex::new(0.0, 1.0);
+            // Square root of 3, `SQRT_3` = √3
             const SQRT_3: $t = 1.73205_08075_68877_29352_74463_41505_8724;
-            /// The complex cube root of one, CBRT_1 = ∛1
-            pub const CBRT_1: Complex<$t> = Complex::new(-0.5, 0.5 * SQRT_3};
+            /// The complex cube root of one, `CBRT_1` = ∛1
+            ///
+            /// `CBRT_1` = -1/2 + √3/2 i
+            ///
+            /// `CBRT_1`³ = 1
+            pub const CBRT_1: Complex<$t> = Complex::new(-0.5, 0.5 * SQRT_3);
 
             /// Euler's formula
             ///
@@ -512,6 +513,7 @@ macro_rules! complex_mod {
             pub fn cis(theta: $t) -> Complex<$t> {
                 Complex::<$t>::cis(theta)
             }
+
             /// Natural logarithm
             ///
             /// Returns a complex natural logarithm of any valid float.
@@ -524,8 +526,8 @@ macro_rules! complex_mod {
                 } else {
                     Complex::new((-exp).ln(), PI)
                 }
-
             }
+
             /// Square root
             ///
             /// Returns a complex square root of any valid float.
@@ -541,15 +543,21 @@ macro_rules! complex_mod {
             /// Quadratic roots
             ///
             /// Returns the complex roots of: a * x² + b * x + c = 0
+            ///
+            /// # Panics
+            ///
+            /// Panics if coefficients do not form a valid quadratic equation,
+            /// that is if `a == 0.0` or any coefficients are `NAN`
             pub fn quad(a: $t, b: $t, c: $t) -> [Complex<$t>; 2] {
-                if a != 0.0 {
-                    let sqrt = sqrt(b * b - 4.0 * a * c);
-                    let dom = 0.5 / a;
-                    [(-b + sqrt) * dom, (-b - sqrt) * dom]
-                } else {
-                    let root = (-c / b).into();
-                    [root, root]
-                }
+                assert!(!(a.is_nan() || b.is_nan() || c.is_nan()),
+                    "NAN term, a = {a}, b = {b}, c = {c}"
+                );
+                assert_ne!(a, 0.0,
+                    "Not a valid quadratic equation, 1st term = {a}"
+                );
+                let sqrt = sqrt(b * b - 4.0 * a * c);
+                let dom = 0.5 / a;
+                [(-b + sqrt) * dom, (-b - sqrt) * dom]
             }
 
             #[cfg(test)]
@@ -580,6 +588,12 @@ macro_rules! complex_mod {
                 #[test]
                 fn check_sqrt(){
                     let squares = [
+                        Complex::new(-2.5, -2.5),
+                        Complex::new( 0.5, -0.5),
+                        Complex::new(-2.5,  2.5),
+                        Complex::new( 0.5,  0.5),
+                        Complex::new(-5.0,  0.0),
+                        Complex::new( 5.0,  0.0),
                         Complex::new(-1.0, 0.5 *  $t::EPSILON.sqrt()),
                         Complex::new(-1.0, 0.5 * -$t::EPSILON.sqrt()),
                         Complex::new(-1.0, 2.0 *  $t::EPSILON.sqrt()),
@@ -587,13 +601,7 @@ macro_rules! complex_mod {
                         Complex::new( 1.0, 0.5 *  $t::EPSILON.sqrt()),
                         Complex::new( 1.0, 0.5 * -$t::EPSILON.sqrt()),
                         Complex::new( 1.0, 2.0 *  $t::EPSILON.sqrt()),
-                        Complex::new( 1.0, 2.0 * -$t::EPSILON.sqrt()),
-                        Complex::new(-2.5, -2.5),
-                        Complex::new( 0.5, -0.5),
-                        Complex::new(-2.5,  2.5),
-                        Complex::new( 0.5,  0.5),
-                        Complex::new(-5.0,  0.0),
-                        Complex::new( 5.0,  0.0)
+                        Complex::new( 1.0, 2.0 * -$t::EPSILON.sqrt())
                     ];
                     println!("{}", $t::EPSILON);
                     for &sq in squares.iter() {
@@ -611,9 +619,11 @@ macro_rules! complex_mod {
                 fn check_quad(){
                     let coeffs = [
                         [1.0, -4.0, 13.0],
-                        [1.0, -2.0, 2.0]
+                        [1.0, -2.0, 2.0],
+                        [2.0, -2.0, 0.0],
+                        [4.0, 0.0, -36.0]
                     ];
-                    for &coeff in coeffs.iter() {
+                    for coeff in coeffs {
                         let [a, b, c]= coeff;
                         println!("epsilon = {}", $t::EPSILON);
                         for &root in $m::quad(a, b, c).iter() {
@@ -622,6 +632,26 @@ macro_rules! complex_mod {
                             println!("sum = {sum}");
                             assert!(sum.abs() <= $t::EPSILON);
                         }
+                    }
+                }
+
+                #[test]
+                fn panic_quad() {
+                    use std::panic;
+                    let panics_coeffs = [
+                        (true, [0.0, -4.0, 13.0]),
+                        (true, [$t::NAN, -2.0, 2.0]),
+                        (true, [1.0, $t::NAN, 2.0]),
+                        (true, [1.0, -2.0, $t::NAN]),
+                        (true, [$t::NAN, $t::NAN, $t::NAN]),
+                        (false, [1.0, -2.0, 2.0])
+                    ];
+                    for panics_coeff in panics_coeffs {
+                        let (should_panic, [a, b, c]) = panics_coeff;
+                        let result = panic::catch_unwind(|| {
+                            $m::quad(a, b, c)
+                        });
+                        assert!(should_panic == result.is_err());
                     }
                 }
             }
