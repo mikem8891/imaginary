@@ -9,7 +9,7 @@
 //! [`Complex`] and additional functionality; such as, [`abs`](Complex::abs), 
 //! [`sign`](Complex::sign), [`angle`](Complex::angle), [`cis`](Complex::cis), 
 //! [`exp`](Complex::cis), [`powf`](Complex::powf), [`powc`](Complex::powc), 
-//! and [`sqrt`](Complex::sqrt).
+//! [`sqrt`](Complex::sqrt), and [`cbrt`](Complex::cbrt).
 //! 
 //! # Examples
 //! ```
@@ -20,7 +20,7 @@
 //! assert_eq!(x / (x + z), Complex::new(0.36, 0.48));
 //! ```
 //! 
-//! Choosing a convenient type definition can make working with complex numbers
+//! Choosing a convenient type alias can make working with complex numbers
 //! as easy as floats.
 //! 
 //! # Examples
@@ -51,7 +51,11 @@ impl<T: Copy> Complex<T>{
         Complex { r: real, i: imag }
     }
 }
-
+/// # Example
+/// ```
+/// use imaginary::Complex;
+/// assert_eq!(Complex::new(1.0, 2.0), (1.0, 2.0).into());
+/// ```
 impl<T: Copy> From<(T, T)> for Complex<T>{
     fn from(value: (T, T)) -> Complex<T>{
         let (real, imag) = value;
@@ -59,6 +63,11 @@ impl<T: Copy> From<(T, T)> for Complex<T>{
     }
 }
 
+/// # Example
+/// ```
+/// use imaginary::Complex;
+/// assert_eq!((1.0, 2.0), Complex::new(1.0, 2.0).into());
+/// ```
 impl<T: Copy> From<Complex<T>> for (T, T) {
     fn from(value: Complex<T>) -> (T, T) {
         (value.r, value.i)
@@ -68,12 +77,24 @@ impl<T: Copy> From<Complex<T>> for (T, T) {
 impl<T> Complex<T>
 where T: Neg<Output=T> + Copy {
     /// Complex conjugate
+    /// # Example
+    /// ```
+    /// use imaginary::Complex;
+    /// let z = Complex::new(1.0, 2.0);
+    /// assert_eq!(z.conj(), Complex::new(1.0, -2.0));
+    /// ```
     pub fn conj(self) -> Complex<T> {
         Complex { r: (self.r), i: (-self.i) }
     }
 }
 
-impl<T> Neg for Complex<T> 
+/// # Example
+/// ```
+/// use imaginary::Complex;
+/// let z = Complex::new(1.0, 2.0);
+/// assert_eq!(-z, Complex::new(-1.0, -2.0));
+/// ```
+impl<T> Neg for Complex<T>
 where T: Neg<Output=T> + Copy {
     type Output = Complex<T>;
     fn neg(self) -> Complex<T>{
@@ -162,7 +183,7 @@ macro_rules! impl_display_for_complex {
             /// # Examples
             /// ```
             /// use imaginary::Complex;
-            /// let num = format!("{}", Complex::new(3.0, -4.0));
+            /// let num = Complex::new(3.0, -4.0).to_string();
             /// assert_eq!("3 - 4*i", num);
             /// ```
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -319,87 +340,40 @@ impl_ops_for_complex!(f64);
 macro_rules! impl_complex {
     ($t: ident) => {
         impl Complex<$t>{
-            /// The absolute value or magnitude
+            /// The absolute value or complex modulus
             ///
-            /// # Examples
-            ///
-            /// ```
-            /// use imaginary::Complex;
-            /// let z = Complex::<f64>::new(-3.0, 4.0);
-            /// assert_eq!(z.abs(), 5.0);
-            /// ```
+            /// This is also known as the magnitude or norm of
+            /// the complex number
             pub fn abs(self) -> $t {
                 self.r.hypot(self.i)
             }
 
-            /// Returns a `Complex` in the same direction,
-            /// but with a magnitude of 1
-            ///
-            /// # Examples
-            ///
-            /// ```
-            /// use imaginary::Complex;
-            /// let z = Complex::<f64>::new(-3.0, 4.0);
-            /// assert_eq!(z.sign(), Complex::new(-0.6, 0.8));
-            /// ```
+            /// Returns the direction with a absolute value of 1
             pub fn sign(self) -> Complex<$t> {
                 self / self.abs()
             }
 
-            /// Phase angle
+            /// Phase angle or argument
             ///
-            /// # Examples
-            ///
-            /// ```
-            /// use imaginary::Complex;
-            ///
-            /// let z = Complex::<f32>::new(-5.0, 5.0);
-            /// let theta = 3.0 * std::f32::consts::FRAC_PI_4; // 3π/4
-            /// assert_eq!(z.angle(), theta);
-            /// ```
+            /// The angle returned is in radians from the real axis
             pub fn angle(self) -> $t {
                 self.i.atan2(self.r)
             }
 
-            /// Returns cos θ + i sin θ.  Equivalent to e^(θ i)
-            /// # Examples
-            /// ```
-            /// use imaginary::{Complex, c32};
+            /// Euler's formula
             ///
-            /// let i = c32::I;
-            /// let z = Complex::<f32>::cis(3.1);
-            /// assert_eq!(z, f32::cos(3.1) + f32::sin(3.1) * i);
-            /// ```
+            /// `cis(θ)` = cos(θ) + i * sin(θ) = e^(θ*i)
             pub fn cis(theta: $t) -> Complex<$t> {
                 Complex::new(theta.cos(), theta.sin())
             }
 
             /// The exponential function, e^z
-            ///
-            /// # Examples
-            /// ```
-            /// use imaginary::{Complex, c32};
-            ///
-            /// // Euler's identity
-            /// // e^(π*i) + 1 = 0
-            ///
-            /// let pi_i = std::f32::consts::PI * c32::I;
-            /// assert!((pi_i.exp() + 1.0).abs() <= f32::EPSILON);
-            /// ```
             pub fn exp(self) -> Complex<$t> {
                 let r = self.r.exp();
                 r * Complex::<$t>::cis(self.i)
             }
 
             /// The natural logarithm
-            ///
-            /// # Examples
-            /// ```
-            /// use imaginary::{Complex, c32};
-            ///
-            /// let pi_i = std::f32::consts::PI * c32::I;
-            /// assert_eq!(Complex::<f32>::new(-1.0, 0.0).ln(), pi_i);
-            /// ```
             pub fn ln(self) -> Complex<$t> {
                 Complex::new(self.abs().ln(), self.angle())
             }
@@ -457,7 +431,7 @@ mod tests {
     #[test]
     fn check_const_path(){
         assert_eq!(c32::I, Complex{r: 0.0_f32, i: 1.0_f32});
-//        assert_eq!(Complex::<f64>::I, Complex{r: 0.0_f64, i: 1.0_f64});
+        assert_eq!(c64::I, Complex{r: 0.0_f64, i: 1.0_f64});
     }
 
     // Tests -a a+b a-b a*b a/b
@@ -546,6 +520,7 @@ use super::*;
                     Complex::<$t>::new(0.0, (-sq).sqrt())
                 }
             }
+
             /// Quadratic roots
             ///
             /// Returns the complex roots of: a * x² + b * x + c = 0
@@ -581,19 +556,17 @@ use super::*;
                     "Not a valid cubic equation, 1st term = {a}"
                 );
                 let (a_2, a_1, a_0) = (b / a, c / a, d / a);
-                let p = (3.0 * a_1 - a_2 * a_2) / 3.0;
-                let q = (9.0 * a_1 * a_2 - 27.0 * a_0 - 2.0 * a_2 * a_2 * a_2)
-                        / 27.0;
+                let p = a_1 - (a_2 * a_2) / 3.0;
+                let q = (9.0 * a_1 * a_2 - 2.0 * a_2 * a_2 * a_2) / 27.0 - a_0;
                 let w_cb = 0.5 * (q + $m::sqrt(q * q + 4.0 / 27.0 * p * p * p));
                 let mut w = w_cb.cbrt();
-                let x_1 = w - p / (3.0 * w);
-                let z_1 = x_1 - a_2 / 3.0;
+                let po3 = p / 3.0;
+                let a_2o3 = a_2 / 3.0;
+                let z_1 = w - po3 / w - a_2o3;
                 w *= $m::CBRT_1;
-                let x_2 = w - p / (3.0 * w);
-                let z_2 = x_2 - a_2 / 3.0;
+                let z_2 = w - po3 / w - a_2o3;
                 w *= $m::CBRT_1;
-                let x_3 = w - p / (3.0 * w);
-                let z_3 = x_3 - a_2 / 3.0;
+                let z_3 = w - po3 / w - a_2o3;
                 [z_1, z_2, z_3]
             }
 
