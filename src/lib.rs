@@ -437,6 +437,12 @@ macro_rules! impl_complex {
                     }
                 }
             }
+
+            /// Cube root, ∛z
+            pub fn cbrt(self) -> Complex<$t> {
+                self.abs().cbrt() * Complex::<$t>::cis(self.angle() / 3.0)
+            }
+
         }
     }
 }
@@ -559,6 +565,37 @@ use super::*;
                 let dom = 0.5 / a;
                 [(-b + sqrt) * dom, (-b - sqrt) * dom]
             }
+            /// Cubic roots
+            ///
+            /// Returns the complex roots of: a * x³ + b * x² + c * x + d = 0
+            ///
+            /// # Panics
+            ///
+            /// Panics if coefficients do not form a valid cubic equation,
+            /// that is if `a == 0.0` or any coefficients are `NAN`
+            pub fn cubic(a: $t, b: $t, c: $t, d: $t) -> [Complex<$t>; 3] {
+                assert!(!(a.is_nan() || b.is_nan() || c.is_nan() || d.is_nan()),
+                    "NAN term, a = {a}, b = {b}, c = {c}, d = {d}"
+                );
+                assert_ne!(a, 0.0,
+                    "Not a valid cubic equation, 1st term = {a}"
+                );
+                let (a_2, a_1, a_0) = (b / a, c / a, d / a);
+                let p = (3.0 * a_1 - a_2 * a_2) / 3.0;
+                let q = (9.0 * a_1 * a_2 - 27.0 * a_0 - 2.0 * a_2 * a_2 * a_2)
+                        / 27.0;
+                let w_cb = 0.5 * (q + $m::sqrt(q * q + 4.0 / 27.0 * p * p * p));
+                let mut w = w_cb.cbrt();
+                let x_1 = w - p / (3.0 * w);
+                let z_1 = x_1 - a_2 / 3.0;
+                w *= $m::CBRT_1;
+                let x_2 = w - p / (3.0 * w);
+                let z_2 = x_2 - a_2 / 3.0;
+                w *= $m::CBRT_1;
+                let x_3 = w - p / (3.0 * w);
+                let z_3 = x_3 - a_2 / 3.0;
+                [z_1, z_2, z_3]
+            }
 
             #[cfg(test)]
             mod test {
@@ -616,6 +653,36 @@ use super::*;
                 }
 
                 #[test]
+                fn check_cbrt(){
+                    let cubes = [
+                        Complex::new(-2.5, -2.5),
+                        Complex::new( 0.5, -0.5),
+                        Complex::new(-2.5,  2.5),
+                        Complex::new( 0.5,  0.5),
+                        Complex::new(-5.0,  0.0),
+                        Complex::new( 5.0,  0.0),
+                        Complex::new(-1.0, 0.5 *  $t::EPSILON.cbrt()),
+                        Complex::new(-1.0, 0.5 * -$t::EPSILON.cbrt()),
+                        Complex::new(-1.0, 2.0 *  $t::EPSILON.cbrt()),
+                        Complex::new(-1.0, 2.0 * -$t::EPSILON.cbrt()),
+                        Complex::new( 1.0, 0.5 *  $t::EPSILON.cbrt()),
+                        Complex::new( 1.0, 0.5 * -$t::EPSILON.cbrt()),
+                        Complex::new( 1.0, 2.0 *  $t::EPSILON.cbrt()),
+                        Complex::new( 1.0, 2.0 * -$t::EPSILON.cbrt())
+                    ];
+                    println!("{}", $t::EPSILON);
+                    for cb in cubes {
+                        let cbrt = cb.cbrt();
+                        let ep   = cb.abs() * $t::EPSILON;
+                        let diff = ((cbrt * cbrt * cbrt) - cb).abs();
+                        println!("cb      = {cb}");
+                        println!("cbrt^2  = {}", cbrt * cbrt * cbrt);
+                        println!("diff/ep = {}", diff / ep);
+                        assert!(diff <= 3.5 * ep);
+                    }
+                }
+
+                #[test]
                 fn check_quad(){
                     let coeffs = [
                         [1.0, -4.0, 13.0],
@@ -650,6 +717,48 @@ use super::*;
                         let (should_panic, [a, b, c]) = panics_coeff;
                         let result = panic::catch_unwind(|| {
                             $m::quad(a, b, c)
+                        });
+                        assert!(should_panic == result.is_err());
+                    }
+                }
+
+                #[test]
+                fn check_cubic(){
+                    let coeffs = [
+                        [1.0, 0.0, -7.0, -6.0],
+                        [1.0, -4.0, 1.0, 6.0],
+                        [1.0, -6.0, 11.0, -6.0],
+                        [4.0, 6.0, -16.0, 6.0],
+                    ];
+                    for coeff in coeffs {
+                        let [a, b, c, d]= coeff;
+                        println!("epsilon = {}", $t::EPSILON);
+                        for root in $m::cubic(a, b, c, d) {
+                            let sum = a * root * root * root + b * root * root
+                                        + c * root + d;
+                            println!("root = {root}");
+                            println!("|sum|/ep = {}", sum.abs()/$t::EPSILON);
+                            assert!(sum.abs() <= 12.4 * $t::EPSILON);
+                        }
+                    }
+                }
+
+                #[test]
+                fn panic_cubic() {
+                    use std::panic;
+                    let panics_coeffs = [
+                        (true, [0.0, -4.0, 13.0, 1.0]),
+                        (true, [$t::NAN, -2.0, 2.0, 1.0]),
+                        (true, [1.0, $t::NAN, 2.0, 1.0]),
+                        (true, [1.0, -2.0, $t::NAN, 1.0]),
+                        (true, [1.0, -2.0, 2.0, $t::NAN]),
+                        (true, [$t::NAN, $t::NAN, $t::NAN, $t::NAN]),
+                        (false, [1.0, -2.0, 2.0, 1.0])
+                    ];
+                    for panics_coeff in panics_coeffs {
+                        let (should_panic, [a, b, c, d]) = panics_coeff;
+                        let result = panic::catch_unwind(|| {
+                            $m::cubic(a, b, c, d)
                         });
                         assert!(should_panic == result.is_err());
                     }
