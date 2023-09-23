@@ -54,6 +54,17 @@ impl<T: Copy> Complex<T>{
 /// # Example
 /// ```
 /// use imaginary::Complex;
+/// assert_eq!(Complex::new(5.0, 0.0), 5.0.into());
+/// ```
+impl<T: Copy + Default> From<T> for Complex<T>{
+    fn from(value: T) -> Complex<T>{
+        Complex { r: value, i: T::default() }
+    }
+}
+
+/// # Example
+/// ```
+/// use imaginary::Complex;
 /// assert_eq!(Complex::new(1.0, 2.0), (1.0, 2.0).into());
 /// ```
 impl<T: Copy> From<(T, T)> for Complex<T>{
@@ -272,18 +283,6 @@ macro_rules! impl_display_for_complex {
 }
 impl_display_for_complex!(f32);
 impl_display_for_complex!(f64);
-
-macro_rules! impl_from_float_for_complex {
-    ($t: ty) => {
-        impl From<$t> for Complex<$t> {
-            fn from(value: $t) -> Self {
-                Self{r: value, i: 0.0}
-            }
-        }
-    }
-}
-impl_from_float_for_complex!(f32);
-impl_from_float_for_complex!(f64);
 
 macro_rules! impl_ops_for_complex {
     ($t: ty) => {
