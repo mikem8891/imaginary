@@ -497,7 +497,8 @@ macro_rules! impl_complex {
 
             /// Cube root, ∛z
             pub fn cbrt(self) -> Complex<$t> {
-                self.abs().cbrt() * Complex::<$t>::cis(self.angle() / 3.0)
+                let cbrt = self.abs().cbrt() * Complex::<$t>::cis(self.angle() / 3.0);
+                (2.0 * cbrt + self / (cbrt * cbrt)) / 3.0
             }
 
         }
@@ -734,7 +735,7 @@ use super::*;
                         println!("cb      = {cb}");
                         println!("cbrt^2  = {}", cbrt * cbrt * cbrt);
                         println!("diff/ep = {}", diff / ep);
-                        assert!(diff <= 3.5 * ep);
+                        assert!(diff <= ep);
                     }
                 }
 
