@@ -1,12 +1,27 @@
-a z^2 + b z + c = 0
+a z^2 + b z + c = 0 = F(z)
+dF/dz = 2 a z + b
+dF/dz Dz = F
+
 a (x^2 + 2 x y i - y^2) + b (x + y i) + c 
   = 0
 a (x^2 - y^2) + b x + c = 0 = f(x, y)
 2 a x y + b y = 0 = g(x, y)
 
-df/dx = 2 a x + b
-df/dy = 2 a y
+df/dx = 2 a x + b 
+df/dy = -2 a y = -dg/dx
 dg/dx = 2 a y
-dg/dy = 2 a x + b
+dg/dy = 2 a x + b = df/dx
 
 df/dx Dx + df/dy Dy = f
+dg/dx Dx + dg/dy Dy = g
+
+ df/dx Dx + df/dy Dy = f
+-df/dy Dx + df/dx Dy = g
+let f_x = df/dx, f_y = df/dy
+
+ f_x Dx + f_y Dy = f
+-f_y Dx + f_x Dy = g 
+
+(f_x^2 + f_y^2) Dx = f f_x - g f_y
+(f_x^2 + f_y^2) Dy = f f_y + g f_x
+
