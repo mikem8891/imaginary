@@ -1,0 +1,12 @@
+a z^2 + b z + c = 0
+a (x^2 + 2 x y i - y^2) + b (x + y i) + c 
+  = 0
+a (x^2 - y^2) + b x + c = 0 = f(x, y)
+2 a x y + b y = 0 = g(x, y)
+
+df/dx = 2 a x + b
+df/dy = 2 a y
+dg/dx = 2 a y
+dg/dy = 2 a x + b
+
+df/dx Dx + df/dy Dy = f
