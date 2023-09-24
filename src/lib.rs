@@ -498,7 +498,7 @@ macro_rules! impl_complex {
             /// Cube root, ∛z
             pub fn cbrt(self) -> Complex<$t> {
                 let cbrt = self.abs().cbrt() * Complex::<$t>::cis(self.angle() / 3.0);
-                (2.0 * cbrt + self / (cbrt * cbrt)) / 3.0
+                cbrt - (cbrt - self / (cbrt * cbrt)) / 3.0
             }
 
         }
