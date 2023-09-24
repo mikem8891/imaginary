@@ -1,27 +1,39 @@
-a z^2 + b z + c = 0 = F(z)
-dF/dz = 2 a z + b
-dF/dz Dz = F
+a z^2 + b z + c = 0 = f(z)
+df/dz = 2 a z + b
+df/dz Dz = f
+
+z = x + y i
+f = u + v i
 
 a (x^2 + 2 x y i - y^2) + b (x + y i) + c 
   = 0
-a (x^2 - y^2) + b x + c = 0 = f(x, y)
-2 a x y + b y = 0 = g(x, y)
+a (x^2 - y^2) + b x + c = 0 = u(x, y)
+2 a x y + b y = 0 = v(x, y)
 
-df/dx = 2 a x + b 
-df/dy = -2 a y = -dg/dx
-dg/dx = 2 a y
-dg/dy = 2 a x + b = df/dx
+du/dx = 2 a x + b 
+du/dy = -2 a y = -dv/dx
+dv/dx = 2 a y
+dv/dy = 2 a x + b = du/dx
 
-df/dx Dx + df/dy Dy = f
-dg/dx Dx + dg/dy Dy = g
+du/dx Dx + du/dy Dy = u
+dv/dx Dx + dv/dy Dy = v
 
- df/dx Dx + df/dy Dy = f
--df/dy Dx + df/dx Dy = g
-let f_x = df/dx, f_y = df/dy
+ du/dx Dx - dv/dx Dy = u
+ dv/dx Dx + du/dx Dy = v
+let u_x = du/dx, v_x = dv/dx
 
- f_x Dx + f_y Dy = f
--f_y Dx + f_x Dy = g 
+ u_x Dx - v_x Dy = u
+ v_x Dx + u_x Dy = v
 
-(f_x^2 + f_y^2) Dx = f f_x - g f_y
-(f_x^2 + f_y^2) Dy = f f_y + g f_x
+(u_x^2 + v_x^2) Dx =  u u_x + v v_x
+(u_x^2 + v_x^2) Dy = -u v_x + v u_x
 
+f_z f_z* Dz = f f_z*
+f_z Dz = f
+Dz = f / f_z
+
+f = z^3 - a
+f_z = 3 z^2
+Dz = (z - a / z^2) / 3
+z_1 = z_0 - (z_0 - a / z_0^2) / 3
+z_1 = (2 z_0 + a / z_0^2) / 3
