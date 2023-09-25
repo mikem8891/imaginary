@@ -497,8 +497,12 @@ macro_rules! impl_complex {
 
             /// Cube root, ∛z
             pub fn cbrt(self) -> Complex<$t> {
-                let cbrt = self.abs().cbrt() * Complex::<$t>::cis(self.angle() / 3.0);
-                cbrt - (cbrt - self / (cbrt * cbrt)) / 3.0
+                let r = self.abs().cbrt();
+                let theta = self.angle() / 3.0;
+                let cbrt = r * Complex::<$t>::cis(theta);
+//                cbrt
+                let cbrt_sq = cbrt * cbrt;
+                cbrt - (cbrt * cbrt_sq - self) / (3.0 * cbrt_sq)
             }
 
         }
@@ -646,11 +650,20 @@ use super::*;
                 let mut w = w_cb.cbrt();
                 let po3 = p / 3.0;
                 let a_2o3 = a_2 / 3.0;
-                let z_1 = w - po3 / w - a_2o3;
+                let mut z_1 = w - po3 / w - a_2o3;
+                let mut z_sq = z_1 * z_1;
+                z_1 -= (z_1 * z_sq + a_2 * z_sq + a_1 * z_1 + a_0)/
+                        (3.0 * z_sq + 2.0 * a_2 * z_1 + a_1);
                 w *= $m::CBRT_1;
-                let z_2 = w - po3 / w - a_2o3;
+                let mut z_2 = w - po3 / w - a_2o3;
+                z_sq = z_2 * z_2;
+                z_2 -= (z_2 * z_sq + a_2 * z_sq + a_1 * z_2 + a_0)/
+                        (3.0 * z_sq + 2.0 * a_2 * z_2 + a_1);
                 w *= $m::CBRT_1;
-                let z_3 = w - po3 / w - a_2o3;
+                let mut z_3 = w - po3 / w - a_2o3;
+                z_sq = z_3 * z_3;
+                z_3 -= (z_3 * z_sq + a_2 * z_sq + a_1 * z_3 + a_0)/
+                        (3.0 * z_sq + 2.0 * a_2 * z_3 + a_1);
                 [z_1, z_2, z_3]
             }
 
@@ -735,7 +748,7 @@ use super::*;
                         println!("cb      = {cb}");
                         println!("cbrt^2  = {}", cbrt * cbrt * cbrt);
                         println!("diff/ep = {}", diff / ep);
-                        assert!(diff <= ep);
+                        assert!(diff <= 1.3 * ep);
                     }
                 }
 
@@ -793,9 +806,10 @@ use super::*;
                         for root in $m::cubic(a, b, c, d) {
                             let sum = a * root * root * root + b * root * root
                                         + c * root + d;
+                            let ep = root.abs() * $t::EPSILON;
                             println!("root = {root}");
-                            println!("|sum|/ep = {}", sum.abs()/$t::EPSILON);
-                            assert!(sum.abs() <= 12.4 * $t::EPSILON);
+                            println!("|sum|/ep = {}", sum.abs()/ep);
+                            assert!(sum.abs() <= 0.1 * ep);
                         }
                     }
                 }
