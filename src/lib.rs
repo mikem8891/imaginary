@@ -498,6 +498,9 @@ macro_rules! impl_complex {
             /// Cube root, ∛z
             pub fn cbrt(self) -> Complex<$t> {
                 let r = self.abs().cbrt();
+                if r == 0.0 {
+                    return Complex::new(0.0, 0.0);
+                }
                 let theta = self.angle() / 3.0;
                 let cbrt = r * Complex::<$t>::cis(theta);
 //                cbrt
