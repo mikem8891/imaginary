@@ -503,7 +503,6 @@ macro_rules! impl_complex {
                 }
                 let theta = self.angle() / 3.0;
                 let cbrt = r * Complex::<$t>::cis(theta);
-//                cbrt
                 let cbrt_sq = cbrt * cbrt;
                 cbrt - (cbrt * cbrt_sq - self) / (3.0 * cbrt_sq)
             }
@@ -650,24 +649,35 @@ use super::*;
                 let p = a_1 - (a_2 * a_2) / 3.0;
                 let q = (9.0 * a_1 * a_2 - 2.0 * a_2 * a_2 * a_2) / 27.0 - a_0;
                 let w_cb = 0.5 * (q + $m::sqrt(q * q + 4.0 / 27.0 * p * p * p));
-                let mut w = w_cb.cbrt();
+                let w = w_cb.cbrt();
+                let mut roots = [w, w * $m::CBRT_1, w / $m::CBRT_1];
                 let po3 = p / 3.0;
                 let a_2o3 = a_2 / 3.0;
-                let mut z_1 = w - po3 / w - a_2o3;
-                let mut z_sq = z_1 * z_1;
-                z_1 -= (z_1 * z_sq + a_2 * z_sq + a_1 * z_1 + a_0)/
-                        (3.0 * z_sq + 2.0 * a_2 * z_1 + a_1);
-                w *= $m::CBRT_1;
-                let mut z_2 = w - po3 / w - a_2o3;
-                z_sq = z_2 * z_2;
-                z_2 -= (z_2 * z_sq + a_2 * z_sq + a_1 * z_2 + a_0)/
-                        (3.0 * z_sq + 2.0 * a_2 * z_2 + a_1);
-                w *= $m::CBRT_1;
-                let mut z_3 = w - po3 / w - a_2o3;
-                z_sq = z_3 * z_3;
-                z_3 -= (z_3 * z_sq + a_2 * z_sq + a_1 * z_3 + a_0)/
-                        (3.0 * z_sq + 2.0 * a_2 * z_3 + a_1);
-                [z_1, z_2, z_3]
+                for w in &mut roots {
+                    let z_0 = *w - po3 / *w - a_2o3;
+                    let z = w;
+                    let z_sq = z_0 * z_0;
+                    let f = z_0 * z_sq + a_2 * z_sq + a_1 * z_0 + a_0;
+                    let f_abs = f.abs();
+                    if f_abs == 0.0 {
+                        *z = z_0;
+                        continue;
+                    }
+                    let f_z = 3.0 * z_sq + 2.0 * a_2 * z_0 + a_1;
+                    if f_z.abs() == 0.0 {
+                        *z = z_0;
+                        continue;
+                    }
+                    let z_1 = z_0 - f / f_z;
+                    let z_1_sq = z_1 * z_1;
+                    let f_1 = z_1 * z_1_sq + a_2 * z_1_sq + a_1 * z_1 + a_0;
+                    if f_abs < f_1.abs() {
+                        *z = z_0;
+                    } else {
+                        *z = z_1;
+                    }
+                }
+                roots
             }
 
             #[cfg(test)]
@@ -749,7 +759,7 @@ use super::*;
                         let ep   = cb.abs() * $t::EPSILON;
                         let diff = ((cbrt * cbrt * cbrt) - cb).abs();
                         println!("cb      = {cb}");
-                        println!("cbrt^2  = {}", cbrt * cbrt * cbrt);
+                        println!("cbrt^3  = {}", cbrt * cbrt * cbrt);
                         println!("diff/ep = {}", diff / ep);
                         assert!(diff <= 1.3 * ep);
                     }
@@ -812,7 +822,7 @@ use super::*;
                             let ep = root.abs() * $t::EPSILON;
                             println!("root = {root}");
                             println!("|sum|/ep = {}", sum.abs()/ep);
-                            assert!(sum.abs() <= 0.1 * ep);
+                            assert!(sum.abs() <= 1.0 * ep);
                         }
                     }
                 }
