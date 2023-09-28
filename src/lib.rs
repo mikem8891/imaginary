@@ -423,6 +423,11 @@ impl_ops_for_complex!(f64);
 macro_rules! impl_complex {
     ($t: ident) => {
         impl Complex<$t>{
+
+            pub fn recip(self) -> Self {
+                self.conj() / (self.r * self.r + self.i * self.i)
+            }
+
             /// The absolute value or complex modulus
             ///
             /// This is also known as the magnitude or norm of
@@ -445,12 +450,12 @@ macro_rules! impl_complex {
 
             /// Euler's formula
             ///
-            /// `cis(θ)` = cos(θ) + i * sin(θ) = e^(θ*i)
+            /// `cis(θ)` = cos(θ) + i sin(θ) = e<sup>θ i</sup>
             pub fn cis(theta: $t) -> Complex<$t> {
                 Complex::new(theta.cos(), theta.sin())
             }
 
-            /// The exponential function, e^z
+            /// The exponential function, e<sup>z</sup>
             pub fn exp(self) -> Complex<$t> {
                 let r = self.r.exp();
                 r * Complex::<$t>::cis(self.i)
@@ -461,18 +466,18 @@ macro_rules! impl_complex {
                 Complex::new(self.abs().ln(), self.angle())
             }
 
-            /// Power, self^n where n is a float
+            /// Power, z<sup>n</sup> where n is a float
             pub fn powf(self, n: $t) -> Complex<$t> {
                 let r = self.abs().powf(n);
                 let theta = n * self.angle();
                 r * Complex::<$t>::cis(theta)
             }
-            /// Power, self^n where n is complex
+            /// Power, z<sup>n</sup> where n is complex
             pub fn powc(self, n: Complex<$t>) -> Complex<$t> {
                 (n * self.ln()).exp()
             }
 
-            /// Square root, √z
+            /// Square root, <math> <msqrt> <mi> z </mi> </msqrt> </math>
             pub fn sqrt(self) -> Complex<$t> {
                 let (x, y) = self.into();
                 if y == 0.0 {
@@ -495,7 +500,8 @@ macro_rules! impl_complex {
                 }
             }
 
-            /// Cube root, ∛z
+            /// Cube root,
+            /// <math> <mroot> <mi> z </mi> <mn> 3 </mn> </mroot> </math>
             pub fn cbrt(self) -> Complex<$t> {
                 let r = self.abs().cbrt();
                 if r == 0.0 {
@@ -507,6 +513,38 @@ macro_rules! impl_complex {
                 cbrt - (cbrt * cbrt_sq - self) / (3.0 * cbrt_sq)
             }
 
+            /// Cosine
+            pub fn cos(self) -> Complex<$t> {
+                let (x, y) = self.into();
+                Complex::new(x.cos() * y.cosh(), -x.sin() * y.sinh())
+            }
+            /// Sine
+            pub fn sin(self) -> Complex<$t> {
+                let (x, y) = self.into();
+                Complex::new(x.sin() * y.cosh(), x.cos() * y.sinh())
+            }
+            /// Tangent
+            pub fn tan(self) -> Complex<$t> {
+                let (x, y) = self.into();
+                let num = Complex::new(x.tan(), y.tanh());
+                let dom = Complex::new(1.0, -x.tan() * y.tanh());
+                num / dom
+            }
+            /// Secant
+            pub fn sec(self) -> Complex<$t> {
+                self.cos().recip()
+            }
+            /// Cosecant
+            pub fn csc(self) -> Complex<$t> {
+                self.sin().recip()
+            }
+            /// Cotangent
+            pub fn cot(self) -> Complex<$t> {
+                let (x, y) = self.into();
+                let num = Complex::new(1.0, -x.tan() * y.tanh());
+                let dom = Complex::new(x.tan(), y.tanh());
+                num / dom
+            }
         }
     }
 }
@@ -562,7 +600,8 @@ macro_rules! complex_mod {
             use std::assert_ne;
 use super::*;
 
-            /// The imaginary number, `I` = √-1
+            /// The imaginary number, `I` =
+            /// <math> <msqrt> <mn> -1 </mn> </msqrt> </math>
             ///
             /// `I` = i
             ///
@@ -570,16 +609,27 @@ use super::*;
             pub const I: Complex<$t> = Complex::new(0.0, 1.0);
             // Square root of 3, `SQRT_3` = √3
             const SQRT_3: $t = 1.73205_08075_68877_29352_74463_41505_8724;
-            /// The complex cube root of one, `CBRT_1` = ∛1
+            /// The complex cube root of one, `CBRT_1` =
+            /// <math> <mroot> <mn> 1 </mn> <mn> 3 </mn> </mroot> </math>
             ///
-            /// `CBRT_1` = -1/2 + √3/2 i
+            /// `CBRT_1` =
+            /// <math>
+            ///   <mo> - </mo>
+            ///   <mfrac> <mn> 1 </mn> <mn> 2 </mn> </mfrac>
+            ///   <mo> + </mo>
+            ///   <mfrac>
+            ///     <msqrt> <mn> 3 </mn> </msqrt> <mn> 2 </mn>
+            ///   </mfrac>
+            ///   <mi> i </mi>
+            /// </math>
+            /// <br><br>
             ///
             /// `CBRT_1`³ = 1
             pub const CBRT_1: Complex<$t> = Complex::new(-0.5, 0.5 * SQRT_3);
 
             /// Euler's formula
             ///
-            /// `cis(θ)` = cos(θ) + i * sin(θ) = e^(θ*i)
+            /// `cis(θ)` = cos(θ) + i sin(θ) = e<sup>θ i</sup>
             pub fn cis(theta: $t) -> Complex<$t> {
                 Complex::<$t>::cis(theta)
             }
@@ -613,7 +663,7 @@ use super::*;
 
             /// Quadratic roots
             ///
-            /// Returns the complex roots of: a * x² + b * x + c = 0
+            /// Returns the complex roots of: a x² + b x + c = 0
             ///
             /// # Panics
             ///
@@ -632,7 +682,7 @@ use super::*;
             }
             /// Cubic roots
             ///
-            /// Returns the complex roots of: a * x³ + b * x² + c * x + d = 0
+            /// Returns the complex roots of: a x³ + b x² + c x + d = 0
             ///
             /// # Panics
             ///
