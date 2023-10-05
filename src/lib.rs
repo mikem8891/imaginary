@@ -545,6 +545,38 @@ macro_rules! impl_complex {
                 let dom = Complex::new(x.tan(), y.tanh());
                 num / dom
             }
+            /// Hyperbolic cosine
+            pub fn cosh(self) -> Complex<$t> {
+                let (x, y) = self.into();
+                Complex::new(x.cosh() * y.cos(), x.sinh() * y.sin())
+            }
+            /// Hyperbolic sine
+            pub fn sinh(self) -> Complex<$t> {
+                let (x, y) = self.into();
+                Complex::new(x.sinh() * y.cos(), x.cosh() * y.sin())
+            }
+            /// Hyperbolic tangent
+            pub fn tanh(self) -> Complex<$t> {
+                let (x, y) = self.into();
+                let num = Complex::new(x.tanh(), y.tan());
+                let dom = Complex::new(1.0, x.tanh() * y.tan());
+                num / dom
+            }
+            /// Hyperbolic secant
+            pub fn sech(self) -> Complex<$t> {
+                self.cosh().recip()
+            }
+            /// Hyperbolic cosecant
+            pub fn csch(self) -> Complex<$t> {
+                self.sinh().recip()
+            }
+            /// Hyperbolic cotangent
+            pub fn coth(self) -> Complex<$t> {
+                let (x, y) = self.into();
+                let num = Complex::new(1.0, x.tanh() * y.tan());
+                let dom = Complex::new(x.tanh(), y.tan());
+                num / dom
+            }
         }
     }
 }
